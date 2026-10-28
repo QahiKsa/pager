@@ -8,10 +8,21 @@
 .mc h2{margin:0;color:var(--brown);font-size:24px}.mc p{margin:0;color:var(--mute)}
 .mc .bell{width:84px;height:84px;border-radius:50%;background:var(--brown);display:flex;align-items:center;justify-content:center}
 .row2{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.row2 .ghost{color:var(--brown)}
-.pager{animation:shake .6s infinite;transform-origin:50% 90%}
+.rcup{position:relative;width:230px;height:230px;animation:shake .6s infinite;transform-origin:50% 90%}
+.rcup svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;opacity:0;transition:opacity .9s ease}
+.rcup.hot .c-hot,.rcup.ice .c-ice{opacity:1}
+.steam path{fill:none;stroke:#f1e6d0;stroke-width:6;stroke-linecap:round;opacity:0;transform-box:fill-box;transform-origin:50% 100%;animation:steam 3.2s ease-in-out infinite}
+.steam path:nth-child(2){animation-delay:1s}.steam path:nth-child(3){animation-delay:2s}
+@keyframes steam{0%{opacity:0;transform:translateY(14px) scaleX(.8)}30%{opacity:.85}100%{opacity:0;transform:translateY(-26px) scaleX(1.25)}}
+.ice-cube{transform-box:fill-box;transform-origin:50% 50%;animation:bob 3s ease-in-out infinite}
+.ice-cube:nth-of-type(2){animation-delay:-1s;animation-duration:3.6s}.ice-cube:nth-of-type(3){animation-delay:-2s;animation-duration:2.7s}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-5px) rotate(7deg)}}
+.wave{animation:wave 2.4s ease-in-out infinite alternate}@keyframes wave{from{transform:translateX(-6px)}to{transform:translateX(6px)}}
+.drop{animation:drop 3.4s ease-in infinite;opacity:0}@keyframes drop{0%{opacity:0;transform:translateY(-8px)}15%{opacity:.9}60%{opacity:.9}100%{opacity:0;transform:translateY(16px)}}
+.rn{font-family:'Reem Kufi',Tajawal,sans-serif;font-weight:700;fill:#f1e6d0}
 @keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-5deg)}75%{transform:rotate(5deg)}}
-@media(prefers-reduced-motion:reduce){.pager{animation:none}}
-</style></head><body>
+@media(prefers-reduced-motion:reduce){.rcup,.steam path,.ice-cube,.wave,.drop{animation:none}.steam path{opacity:.6}}
+.cup{font-size:90px;background:none;padding:0;line-height:1}</style></head><body>
 <main class="scr" id="scr">
   <header class="chead"><img class="logo big" src="logo.png" alt="قاهي" onload="document.getElementById('bn').hidden=true" onerror="this.remove()"><div class="brand" id="bn"></div></header>
   <section class="mid" id="v-in">
@@ -24,10 +35,45 @@
     <div class="sub">طلب رقم <b id="wn"></b></div>
     <div class="ring"><svg width="220" height="220"><circle cx="110" cy="110" r="100" fill="none" stroke="#dccfb4" stroke-width="10"/><circle id="arc" cx="110" cy="110" r="100" fill="none" stroke="#586d54" stroke-width="10" stroke-linecap="round"/></svg><div class="in"><div class="t" id="cd"></div><div class="sub">الوقت المتوقع</div></div></div>
     <div class="sub" id="ps"></div>
+    <button class="cta" id="play">العب وأنت تنتظر</button>
     <div class="row2"><button class="ghost" id="another">تتبع طلب آخر</button><button class="ghost" id="cancel">إلغاء المتابعة</button></div>
   </section>
+  <section class="mid" id="v-game" hidden><div style="font-size:24px;font-weight:700">اضغط الفنجان!</div><div class="sub" id="gsc"></div><button class="cup" id="cup" aria-label="فنجان">&#9749;</button><button class="ghost" id="gb">رجوع</button></section>
   <section class="mid" id="v-ready" hidden>
-    <div style="font-size:28px;font-weight:700">طلبك جاهز</div><svg class="pager" viewBox="0 0 200 240" width="230" role="img" aria-label="البيجر"><rect x="88" y="4" width="24" height="46" rx="10" fill="#f1e6d0"/><rect x="20" y="40" width="160" height="196" rx="38" fill="#f1e6d0"/><rect x="42" y="62" width="116" height="92" rx="18" fill="#934713"/><text id="rn" x="100" y="123" text-anchor="middle" font-size="58" font-weight="700" fill="#f1e6d0" font-family="Reem Kufi,Tajawal,sans-serif"></text><circle cx="100" cy="194" r="18" fill="#586d54"/></svg><div>تفضل بالاستلام من الكاونتر</div>
+    <div style="font-size:28px;font-weight:700">طلبك جاهز</div><div class="rcup hot" id="rc" role="img" aria-label="طلبك جاهز">
+      <svg class="c-hot" viewBox="0 0 200 200">
+        <g class="steam"><path d="M80 66q-12-13 0-26t0-26"/><path d="M104 66q-12-13 0-26t0-26"/><path d="M128 66q-12-13 0-26t0-26"/></g>
+        <ellipse cx="100" cy="176" rx="76" ry="11" fill="#e6d8bb"/>
+        <path d="M154 96h12q22 0 22 24t-22 24h-10" fill="none" stroke="#fbf6ea" stroke-width="11" stroke-linecap="round"/>
+        <path d="M42 84h116v46q0 42-58 42t-58-42z" fill="#fbf6ea" stroke="#dccfb4" stroke-width="3"/>
+        <path d="M50 102q2 36 18 50" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"/>
+        <ellipse cx="100" cy="84" rx="58" ry="11" fill="#fbf6ea" stroke="#dccfb4" stroke-width="3"/>
+        <ellipse cx="100" cy="85" rx="50" ry="8" fill="#5a3319"/>
+        <ellipse cx="88" cy="83" rx="18" ry="3" fill="#8a5a33" opacity=".7"/>
+        <rect x="64" y="107" width="72" height="48" rx="14" fill="#934713"/>
+        <text class="rn" id="rn1" x="100" y="141" text-anchor="middle" font-size="36"></text>
+      </svg>
+      <svg class="c-ice" viewBox="0 0 200 200">
+        <defs><clipPath id="rcc"><path d="M56 56h88l-11 134q-1 10-11 10H78q-10 0-11-10z"/></clipPath>
+          <linearGradient id="rlq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3c6a0"/><stop offset=".35" stop-color="#b88455"/><stop offset="1" stop-color="#5a3319"/></linearGradient></defs>
+        <path d="M122 4l-14 112" stroke="#586d54" stroke-width="8" stroke-linecap="round"/>
+        <path d="M118.6 30l-2 16M115 62l-2 16" stroke="#f1e6d0" stroke-width="8" stroke-linecap="round" opacity=".85"/>
+        <path d="M56 56h88l-11 134q-1 10-11 10H78q-10 0-11-10z" fill="#fff" fill-opacity=".45"/>
+        <g clip-path="url(#rcc)">
+          <rect x="40" y="82" width="130" height="130" fill="url(#rlq)"/>
+          <path class="wave" d="M30 84q15-9 30 0t30 0 30 0 30 0 30 0V96H30z" fill="#ecd3b0"/>
+          <g class="ice-cube"><rect x="66" y="92" width="30" height="30" rx="7" fill="#fff" fill-opacity=".5" stroke="#fff" stroke-opacity=".9" stroke-width="2"/></g>
+          <g class="ice-cube"><rect x="104" y="98" width="28" height="28" rx="7" fill="#fff" fill-opacity=".45" stroke="#fff" stroke-opacity=".9" stroke-width="2"/></g>
+          <g class="ice-cube"><rect x="84" y="164" width="26" height="26" rx="7" fill="#fff" fill-opacity=".4" stroke="#fff" stroke-opacity=".9" stroke-width="2"/></g>
+        </g>
+        <path d="M56 56h88l-11 134q-1 10-11 10H78q-10 0-11-10z" fill="none" stroke="#cfc3a8" stroke-width="3"/>
+        <rect x="50" y="48" width="100" height="11" rx="5.5" fill="#586d54"/>
+        <rect x="66" y="112" width="68" height="48" rx="14" fill="#934713" stroke="#f1e6d0" stroke-width="2"/>
+        <text class="rn" id="rn2" x="100" y="146" text-anchor="middle" font-size="36"></text>
+        <circle class="drop" cx="150" cy="120" r="3.5" fill="#9bc6d6"/>
+        <circle class="drop" cx="48" cy="150" r="3" fill="#9bc6d6" style="animation-delay:1.6s"/>
+      </svg>
+    </div><div>تفضل بالاستلام من الكاونتر</div>
     <button class="cta" style="background:#f1e6d0;color:#934713" id="got">استلمت طلبي</button>
   </section>
 </main>
@@ -38,16 +84,18 @@
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getFirestore,doc,getDoc,onSnapshot,updateDoc,arrayUnion} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {getMessaging,getToken,isSupported} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
-const PUSH_ENABLED=false; // غيّرها إلى true بعد ما تفعّل Blaze وتنشر الدالة
+const PUSH_ENABLED=true; // غيّرها إلى true بعد ما تفعّل Blaze وتنشر الدالة
 const $=i=>document.getElementById(i),C=2*Math.PI*100,BAD=/XXXX|YOUR-|0000000000/.test(JSON.stringify(FB.config));
-let app,db,mine=null,state=null,unsub=null,ac=null,alarm=null,push=false;
+let gt=null,gs=0,gl=10,app,db,mine=null,state=null,unsub=null,ac=null,alarm=null,push=false;
 $('arc').setAttribute('stroke-dasharray',C);
 const fmt=s=>Math.floor(s/60)+':'+('0'+s%60).slice(-2),left=()=>Math.max(0,Math.ceil((state.eta-Date.now())/1000));
 const norm=s=>s.replace(/[٠-٩]/g,d=>d.charCodeAt(0)-1632).replace(/[۰-۹]/g,d=>d.charCodeAt(0)-1776).trim();
 const T=p=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r({code:'timeout'}),8000))]);
 const err=m=>$('er').textContent=m;
+function setRn(n){n=String(n);const fs=n.length>4?18:n.length>3?24:n.length>2?30:36;['rn1','rn2'].forEach(id=>{$(id).textContent=n;$(id).setAttribute('font-size',fs)})}
+let hotCup=true;setInterval(()=>{hotCup=!hotCup;$('rc').className='rcup '+(hotCup?'hot':'ice')},7000);
 if(/iphone|ipad/i.test(navigator.userAgent)&&!(navigator.standalone||matchMedia('(display-mode: standalone)').matches))$('ios').hidden=false;
-function show(v){const lg=document.querySelector('.chead .logo');if(lg)lg.src=v==='ready'?'logo-light.png':'logo.png';['in','wait','ready'].forEach(x=>$('v-'+x).hidden=x!==v);$('scr').className='scr'+(v==='ready'?' ready':'')}
+function show(v){const lg=document.querySelector('.chead .logo');if(lg)lg.src=v==='ready'?'logo-light.png':'logo.png';if(v!=='game')clearInterval(gt);['in','wait','ready','game'].forEach(x=>$('v-'+x).hidden=x!==v);$('scr').className='scr'+(v==='ready'?' ready':'')}
 function unlock(){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}}
 addEventListener('pointerdown',unlock);
 function chime(){if(!ac)return;[880,1175,1568].forEach((f,i)=>{const t=ac.currentTime+i*.22,o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.6);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.65)})}
@@ -68,14 +116,17 @@ async function track(n){n=norm(n||$('in').value);if(!n)return;unlock();if(BAD)re
   err('');mine=n;localStorage.setItem('order',n);if(!sessionStorage.getItem('sil')){$('silent').hidden=false;sessionStorage.setItem('sil','1')}unsub&&unsub();
   unsub=onSnapshot(doc(db,'orders',n),x=>{state=x.exists()?x.data():null;
     if(!state||state.status==='picked'){leave();return}
-    if(state.status==='ready'){startAlarm();$('rn').textContent=mine;show('ready')}
-    else{$('wn').textContent=mine;$('ps').textContent=push?'التنبيهات مفعّلة، تقدر تقفل الشاشة':'أبقِ هذي الصفحة مفتوحة ليشتغل الصوت والتنبيه';show('wait');tick()}});
+    if(state.status==='ready'){startAlarm();setRn(mine);show('ready')}
+    else{$('wn').textContent=mine;$('ps').textContent=push?'التنبيهات مفعّلة، تقدر تقفل الشاشة':'أبقِ هذي الصفحة مفتوحة ليشتغل الصوت والتنبيه';if($('v-game').hidden)show('wait');tick()}});
   if(PUSH_ENABLED)enablePush(n)}
 function leave(){stopAlarm();unsub&&unsub();mine=null;state=null;localStorage.removeItem('order');$('in').value='';err('');show('in')}
 async function enablePush(n){try{if(!(await isSupported()))throw 0;if(await Notification.requestPermission()!=='granted')throw 0;
   const reg=await navigator.serviceWorker.register('firebase-messaging-sw.js');
   const t=await getToken(getMessaging(app),{vapidKey:FB.vapidKey,serviceWorkerRegistration:reg});
   await updateDoc(doc(db,'orders',n),{tokens:arrayUnion(t)});push=true;$('ps').textContent='التنبيهات مفعّلة، تقدر تقفل الشاشة'}catch(e){push=false}}
-$('go').onclick=()=>track();$('in').onkeydown=e=>{if(e.key==='Enter')track()};$('got').onclick=leave;$('another').onclick=leave;$('cancel').onclick=leave;$('ok').onclick=()=>{$('silent').hidden=true;unlock()};
+$('go').onclick=()=>track();$('in').onkeydown=e=>{if(e.key==='Enter')track()};$('play').onclick=()=>{gs=0;gl=10;$('gsc').textContent='الوقت 10 · النقاط 0';show('game');gt=setInterval(()=>{gl--;$('gsc').textContent=gl>0?'الوقت '+gl+' · النقاط '+gs:'انتهى! جبت '+gs+' نقطة';if(gl<=0)clearInterval(gt)},1000)};
+$('cup').onclick=()=>{if(gl>0){gs++;$('gsc').textContent='الوقت '+gl+' · النقاط '+gs}};
+$('gb').onclick=()=>show(state&&state.status==='ready'?'ready':'wait');
+$('got').onclick=leave;$('another').onclick=leave;$('cancel').onclick=leave;$('ok').onclick=()=>{$('silent').hidden=true;unlock()};
 show('in');
 </script></body></html>

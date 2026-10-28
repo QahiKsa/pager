@@ -4,108 +4,76 @@
 <link rel="stylesheet" href="style.css">
 <style>
 body{height:100dvh;overflow:hidden}
-.d{height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:3vh 4vw 2.4vh;text-align:center}
-.top{display:flex;flex-direction:column;align-items:center;gap:.6vh}
-.top img{height:7vh}
-.top h1{margin:0;font-family:'Reem Kufi',serif;font-size:7.5vh;line-height:1.1;color:var(--brown,#934713)}
-.top p{margin:0;font-size:3.6vh;font-weight:700;color:var(--olive,#586d54)}
-
-/* الكوب */
-.cupbox{position:relative;width:min(34vh,60vw);height:30vh;flex:none}
+.d{height:100dvh;display:flex;flex-direction:column;align-items:center;padding:2.2vh 3vw;gap:1.4vh}
+.hd{display:flex;flex-direction:column;align-items:center;gap:.8vh}.hd img{height:10vh}.hd h1{margin:0;font-size:5vh;color:var(--brown)}
+.row3{flex:1;display:flex;align-items:center;justify-content:center;gap:6vw;width:100%;min-height:0}
+.qc{display:flex;flex-direction:column;align-items:center;gap:1.2vh}
+.qb{background:#fffdf7;border:.9vh solid var(--olive);border-radius:3vh;padding:1.4vh;line-height:0}
+.cupbox{position:relative;width:40vh;height:40vh;flex:none;filter:drop-shadow(0 1.2vh 1.2vh rgba(58,42,28,.25))}
 .cupbox svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;opacity:0;transition:opacity .9s ease}
 .cupbox.hot .c-hot,.cupbox.ice .c-ice{opacity:1}
 .shake{transform-origin:50% 92%;animation:shake 4.2s ease-in-out infinite}
-@keyframes shake{
-  0%,52%,100%{transform:rotate(0) translateX(0)}
-  56%{transform:rotate(-5deg) translateX(-1.5%)}
-  60%{transform:rotate(5deg) translateX(1.5%)}
-  64%{transform:rotate(-4deg) translateX(-1%)}
-  68%{transform:rotate(4deg) translateX(1%)}
-  72%{transform:rotate(-2deg)}
-  76%{transform:rotate(0)}
-}
-.steam path{fill:none;stroke:#c8b99b;stroke-width:6;stroke-linecap:round;opacity:0;
-  transform-box:fill-box;transform-origin:50% 100%;animation:steam 3.2s ease-in-out infinite}
-.steam path:nth-child(2){animation-delay:1s}
-.steam path:nth-child(3){animation-delay:2s}
-@keyframes steam{
-  0%{opacity:0;transform:translateY(14px) scaleX(.8)}
-  30%{opacity:.85}
-  100%{opacity:0;transform:translateY(-26px) scaleX(1.25)}
-}
+@keyframes shake{0%,52%,100%{transform:rotate(0) translateX(0)}56%{transform:rotate(-5deg) translateX(-1.5%)}60%{transform:rotate(5deg) translateX(1.5%)}64%{transform:rotate(-4deg) translateX(-1%)}68%{transform:rotate(4deg) translateX(1%)}72%{transform:rotate(-2deg)}76%{transform:rotate(0)}}
+.steam path{fill:none;stroke:#c8b99b;stroke-width:6;stroke-linecap:round;opacity:0;transform-box:fill-box;transform-origin:50% 100%;animation:steam 3.2s ease-in-out infinite}
+.steam path:nth-child(2){animation-delay:1s}.steam path:nth-child(3){animation-delay:2s}
+@keyframes steam{0%{opacity:0;transform:translateY(14px) scaleX(.8)}30%{opacity:.85}100%{opacity:0;transform:translateY(-26px) scaleX(1.25)}}
 .ice-cube{transform-box:fill-box;transform-origin:50% 50%;animation:bob 3s ease-in-out infinite}
-.ice-cube:nth-of-type(2){animation-delay:-1s;animation-duration:3.6s}
-.ice-cube:nth-of-type(3){animation-delay:-2s;animation-duration:2.7s}
-@keyframes bob{
-  0%,100%{transform:translateY(0) rotate(-6deg)}
-  50%{transform:translateY(-5px) rotate(7deg)}
-}
-.wave{animation:wave 2.4s ease-in-out infinite alternate}
-@keyframes wave{from{transform:translateX(-6px)}to{transform:translateX(6px)}}
-.drop{animation:drop 3.4s ease-in infinite;opacity:0}
-@keyframes drop{0%{opacity:0;transform:translateY(-8px)}15%{opacity:.9}60%{opacity:.9}100%{opacity:0;transform:translateY(16px)}}
-
-/* الباركود */
-.qb{background:#fffdf7;border:1vh solid var(--olive,#586d54);border-radius:3.4vh;padding:1.6vh;line-height:0;flex:none;box-shadow:0 1.4vh 3vh rgba(58,42,28,.18)}
-
-.strip{display:flex;align-items:center;gap:1.4vw;min-height:6vh;flex-wrap:wrap;justify-content:center}
-.strip b{color:var(--mute,#8a7b68);font-size:2.6vh}
-.strip span.n{font-family:'Reem Kufi',serif;font-size:4.4vh;background:var(--brown,#934713);color:var(--beige,#f1e6d0);border-radius:2vh;padding:.3vh 2vh}
+.ice-cube:nth-of-type(2){animation-delay:-1s;animation-duration:3.6s}.ice-cube:nth-of-type(3){animation-delay:-2s;animation-duration:2.7s}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-5px) rotate(7deg)}}
+.wave{animation:wave 2.4s ease-in-out infinite alternate}@keyframes wave{from{transform:translateX(-6px)}to{transform:translateX(6px)}}
+.drop{animation:drop 3.4s ease-in infinite;opacity:0}@keyframes drop{0%{opacity:0;transform:translateY(-8px)}15%{opacity:.9}60%{opacity:.9}100%{opacity:0;transform:translateY(16px)}}
+.dn{font-family:'Reem Kufi',Tajawal,sans-serif;font-weight:700;fill:#f1e6d0}
+@media(max-aspect-ratio:1/1){.row3{flex-direction:column;gap:2vh}.cupbox{width:30vh;height:30vh}}
+.strip{display:flex;align-items:center;gap:1.4vw;min-height:7vh;flex-wrap:wrap;justify-content:center}
+.strip b{color:var(--mute);font-size:2.6vh}.strip span.n{font-family:'Reem Kufi',serif;font-size:4.6vh;background:var(--brown);color:var(--beige);border-radius:2vh;padding:.4vh 2vh}
 .strip span.n.new{animation:pop .8s 4}@keyframes pop{50%{transform:scale(1.15)}}
+.pills{display:flex;gap:1.4vw}.pills span{background:var(--paper);border:1px solid var(--line);border-radius:40px;padding:.8vh 2.4vh;font-size:2.4vh;font-weight:700;color:var(--olive)}
 #snd{position:fixed;bottom:6px;left:6px;opacity:.4;font-size:11px;padding:5px 9px}
-
-@media(max-aspect-ratio:3/4){.top h1{font-size:6.2vh}}
 @media(prefers-reduced-motion:reduce){.shake,.steam path,.ice-cube,.wave,.drop,.strip span.n.new{animation:none}.steam path{opacity:.6}}
 </style></head><body>
 <div id="login" class="lg"><div class="lgc"><img class="logo" src="logo.png" alt="" onerror="this.remove()"><div class="brand">شاشة العرض</div><div class="sub">سجّل دخول الأدمن مرة وحدة على الآيباد</div>
 <input id="em" type="email" placeholder="الإيميل" dir="ltr"><input id="pw" type="password" placeholder="كلمة المرور" dir="ltr"><button id="in">دخول</button><div id="le" class="er"></div></div></div>
-
 <main class="d">
-  <div class="top">
-    <img src="logo.png" alt="" onerror="this.remove()">
-    <h1 id="cn"></h1>
-    <p>امسح الكود لتتبع طلبك</p>
+  <div class="hd"><img src="logo.png" alt="" onerror="this.remove()"><h1>امسح الكود لتتبع طلبك</h1></div>
+  <div class="row3">
+    <div class="qb" id="q1"></div>
+    <div class="cupbox hot" id="cup" role="img" aria-label="كوب قهوة">
+      <svg class="c-hot" viewBox="0 0 200 200"><g class="shake">
+        <g class="steam"><path d="M80 66q-12-13 0-26t0-26"/><path d="M104 66q-12-13 0-26t0-26"/><path d="M128 66q-12-13 0-26t0-26"/></g>
+        <ellipse cx="100" cy="176" rx="76" ry="11" fill="#e6d8bb"/>
+        <path d="M154 96h12q22 0 22 24t-22 24h-10" fill="none" stroke="#fbf6ea" stroke-width="11" stroke-linecap="round"/>
+        <path d="M42 84h116v46q0 42-58 42t-58-42z" fill="#fbf6ea" stroke="#dccfb4" stroke-width="3"/>
+        <path d="M50 102q2 36 18 50" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"/>
+        <ellipse cx="100" cy="84" rx="58" ry="11" fill="#fbf6ea" stroke="#dccfb4" stroke-width="3"/>
+        <ellipse cx="100" cy="85" rx="50" ry="8" fill="#5a3319"/>
+        <ellipse cx="88" cy="83" rx="18" ry="3" fill="#8a5a33" opacity=".7"/>
+        <rect x="64" y="107" width="72" height="48" rx="14" fill="#934713"/>
+        <text class="dn" id="dn1" x="100" y="141" text-anchor="middle" font-size="36">—</text>
+      </g></svg>
+      <svg class="c-ice" viewBox="0 0 200 200"><g class="shake">
+        <defs><clipPath id="cc"><path d="M56 56h88l-11 134q-1 10-11 10H78q-10 0-11-10z"/></clipPath>
+          <linearGradient id="lq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3c6a0"/><stop offset=".35" stop-color="#b88455"/><stop offset="1" stop-color="#5a3319"/></linearGradient></defs>
+        <path d="M122 4l-14 112" stroke="#586d54" stroke-width="8" stroke-linecap="round"/>
+        <path d="M118.6 30l-2 16M115 62l-2 16" stroke="#f1e6d0" stroke-width="8" stroke-linecap="round" opacity=".85"/>
+        <path d="M56 56h88l-11 134q-1 10-11 10H78q-10 0-11-10z" fill="#fff" fill-opacity=".45"/>
+        <g clip-path="url(#cc)">
+          <rect x="40" y="82" width="130" height="130" fill="url(#lq)"/>
+          <path class="wave" d="M30 84q15-9 30 0t30 0 30 0 30 0 30 0V96H30z" fill="#ecd3b0"/>
+          <g class="ice-cube"><rect x="66" y="92" width="30" height="30" rx="7" fill="#fff" fill-opacity=".5" stroke="#fff" stroke-opacity=".9" stroke-width="2"/></g>
+          <g class="ice-cube"><rect x="104" y="98" width="28" height="28" rx="7" fill="#fff" fill-opacity=".45" stroke="#fff" stroke-opacity=".9" stroke-width="2"/></g>
+          <g class="ice-cube"><rect x="84" y="164" width="26" height="26" rx="7" fill="#fff" fill-opacity=".4" stroke="#fff" stroke-opacity=".9" stroke-width="2"/></g>
+        </g>
+        <path d="M56 56h88l-11 134q-1 10-11 10H78q-10 0-11-10z" fill="none" stroke="#cfc3a8" stroke-width="3"/>
+        <rect x="50" y="48" width="100" height="11" rx="5.5" fill="#586d54"/>
+        <rect x="66" y="112" width="68" height="48" rx="14" fill="#934713"/>
+        <text class="dn" id="dn2" x="100" y="146" text-anchor="middle" font-size="36">—</text>
+        <circle class="drop" cx="150" cy="120" r="3.5" fill="#9bc6d6"/>
+        <circle class="drop" cx="48" cy="150" r="3" fill="#9bc6d6" style="animation-delay:1.6s"/>
+      </g></svg>
+    </div>
   </div>
-
-  <div class="cupbox hot" id="cup" aria-hidden="true">
-    <!-- قهوة حارة -->
-    <svg class="c-hot" viewBox="0 0 200 200"><g class="shake">
-      <g class="steam"><path d="M80 66q-12-13 0-26t0-26"/><path d="M104 66q-12-13 0-26t0-26"/><path d="M128 66q-12-13 0-26t0-26"/></g>
-      <ellipse cx="100" cy="176" rx="76" ry="11" fill="#e6d8bb"/>
-      <path d="M154 96h12q22 0 22 24t-22 24h-10" fill="none" stroke="#fbf6ea" stroke-width="11" stroke-linecap="round"/>
-      <path d="M154 96h12q22 0 22 24t-22 24h-10" fill="none" stroke="#dccfb4" stroke-width="2" stroke-linecap="round" transform="translate(0 -5.5)" opacity=".0"/>
-      <path d="M42 84h116v46q0 42-58 42t-58-42z" fill="#fbf6ea" stroke="#dccfb4" stroke-width="3"/>
-      <path d="M52 100q2 40 22 54" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"/>
-      <rect x="42" y="118" width="116" height="14" fill="#934713" opacity=".9"/>
-      <ellipse cx="100" cy="84" rx="58" ry="11" fill="#fbf6ea" stroke="#dccfb4" stroke-width="3"/>
-      <ellipse cx="100" cy="85" rx="50" ry="8" fill="#5a3319"/>
-      <ellipse cx="88" cy="83" rx="18" ry="3" fill="#8a5a33" opacity=".7"/>
-    </g></svg>
-
-    <!-- قهوة مثلجة -->
-    <svg class="c-ice" viewBox="0 0 200 200"><g class="shake">
-      <defs><clipPath id="cc"><path d="M56 56h88l-11 134q-1 10-11 10H78q-10 0-11-10z"/></clipPath>
-        <linearGradient id="lq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3c6a0"/><stop offset=".35" stop-color="#b88455"/><stop offset="1" stop-color="#5a3319"/></linearGradient></defs>
-      <path d="M122 4l-14 112" stroke="#586d54" stroke-width="8" stroke-linecap="round"/>
-      <path d="M118.600 30l-2 16M115 62l-2 16" stroke="#f1e6d0" stroke-width="8" stroke-linecap="round" opacity=".85"/>
-      <path d="M56 56h88l-11 134q-1 10-11 10H78q-10 0-11-10z" fill="#fff" fill-opacity=".45"/>
-      <g clip-path="url(#cc)">
-        <rect x="40" y="82" width="130" height="130" fill="url(#lq)"/>
-        <path class="wave" d="M30 84q15-9 30 0t30 0 30 0 30 0 30 0V96H30z" fill="#ecd3b0"/>
-        <g class="ice-cube"><rect x="66" y="92" width="30" height="30" rx="7" fill="#fff" fill-opacity=".5" stroke="#fff" stroke-opacity=".9" stroke-width="2"/></g>
-        <g class="ice-cube"><rect x="102" y="104" width="28" height="28" rx="7" fill="#fff" fill-opacity=".45" stroke="#fff" stroke-opacity=".9" stroke-width="2"/></g>
-        <g class="ice-cube"><rect x="82" y="134" width="28" height="28" rx="7" fill="#fff" fill-opacity=".4" stroke="#fff" stroke-opacity=".9" stroke-width="2"/></g>
-        <path d="M70 70q0 100 10 120" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".55"/>
-      </g>
-      <path d="M56 56h88l-11 134q-1 10-11 10H78q-10 0-11-10z" fill="none" stroke="#cfc3a8" stroke-width="3"/>
-      <rect x="50" y="48" width="100" height="11" rx="5.500" fill="#586d54"/>
-      <circle class="drop" cx="150" cy="120" r="3.500" fill="#9bc6d6"/>
-      <circle class="drop" cx="48" cy="150" r="3" fill="#9bc6d6" style="animation-delay:1.600s"/>
-    </g></svg>
-  </div>
-
-  <div class="qb" id="q1"></div>
   <div class="strip" id="R"></div>
+  <div class="pills"><span>بدون تحميل أي تطبيق</span><span>فعّل التنبيهات</span><span>شيل الصامت</span></div>
 </main>
 <button id="snd">تفعيل صوت الشاشة</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -116,34 +84,20 @@ import {getAuth,signInWithEmailAndPassword,onAuthStateChanged} from 'https://www
 import {getFirestore,doc,collection,onSnapshot,query,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 const $=i=>document.getElementById(i),esc=s=>String(s).replace(/[<>&"']/g,'');
 const base=location.href.split('?')[0].replace(/display\.html.*$/,'');
-let ac=null,seen=null,sub=null,order='',shown=null,nameUn=null;
-
-// اسم الكوفي (محفوظ محلياً عشان يظهر فوراً)
-const setName=n=>{$('cn').textContent=n||'';try{localStorage.setItem('cafeName',n||'')}catch(e){}};
-try{setName(localStorage.getItem('cafeName')||'')}catch(e){}
-
-// الكوب: يتبدل بين الحار والمثلج
-const cup=$('cup');let hot=true;
-setInterval(()=>{hot=!hot;cup.className='cupbox '+(hot?'hot':'ice')},7000);
-
-// الباركود (واحد فقط)
-function qrs(){const s=Math.round(Math.min(innerHeight*.30,innerWidth*.6)),u=order?base+'?o='+encodeURIComponent(order):base,k=u+s;if(k===shown)return;shown=k;
-  $('q1').innerHTML='';new QRCode($('q1'),{text:u,width:s,height:s})}
+let ac=null,seen=null,sub=null,order='',shown=null;
+function qrs(){const por=innerHeight>innerWidth,s=Math.round(por?Math.min(innerHeight*.26,innerWidth*.55):Math.min(innerHeight*.38,innerWidth*.24)),u=order?base+'?o='+encodeURIComponent(order):base,k=u+s;if(k===shown)return;shown=k;
+  $('q1').innerHTML='';new QRCode($('q1'),{text:u,width:s,height:s});
+  const n=order||'—',fs=n.length>4?18:n.length>3?24:n.length>2?30:36;['dn1','dn2'].forEach(id=>{$(id).textContent=n;$(id).setAttribute('font-size',fs)})}
+const cup=$('cup');let hot=true;setInterval(()=>{hot=!hot;cup.className='cupbox '+(hot?'hot':'ice')},7000);
 addEventListener('resize',qrs);
-
 function chime(){if(!ac)return;[880,1175,1568].forEach((f,i)=>{const t=ac.currentTime+i*.22,o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.6);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.65)})}
 $('snd').onclick=()=>{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume();chime();$('snd').textContent='الصوت مفعّل'};
-
 const app=initializeApp(FB.config),auth=getAuth(app),db=getFirestore(app);
-const login=()=>signInWithEmailAndPassword(auth,$('em').value.trim(),$('pw').value).catch(e=>$('le').textContent='تعذر الدخول ['+e.code+']');
+const login=()=>signInWithEmailAndPassword(auth,$('em').value.trim(),$('pw').value).catch(e=>$('le').textContent='الإيميل أو كلمة المرور غلط ['+e.code+']');
 $('in').onclick=login;$('pw').onkeydown=e=>{if(e.key==='Enter')login()};
 qrs();
-
-const watchName=()=>{nameUn&&nameUn();nameUn=onSnapshot(doc(db,'settings','main'),s=>setName(s.exists()?s.data().name:''),()=>{})};
-watchName();
 onSnapshot(doc(db,'settings','display'),s=>{order=s.exists()?s.data().order:'';qrs()},()=>{});
-onAuthStateChanged(auth,u=>{$('login').hidden=!!u;if(u){watchName();if(!sub)sub=onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(100)),x=>draw(x.docs.map(d=>d.data())),()=>{})}});
-
+onAuthStateChanged(auth,u=>{$('login').hidden=!!u;if(u&&!sub)sub=onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(100)),x=>draw(x.docs.map(d=>d.data())),()=>{})});
 function draw(l){const rd=l.filter(o=>o.status==='ready').sort((a,b)=>(b.readyAt||0)-(a.readyAt||0));
   const fresh=seen?rd.filter(o=>!seen.has(o.number)).map(o=>o.number):[];seen=new Set(rd.map(o=>o.number));if(fresh.length)chime();
   $('R').innerHTML=rd.length?'<b>جاهز للاستلام:</b>'+rd.map(o=>'<span class="n'+(fresh.includes(o.number)?' new':'')+'">'+esc(o.number)+'</span>').join(''):''}

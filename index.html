@@ -22,7 +22,11 @@
 .rn{font-family:'Reem Kufi',Tajawal,sans-serif;font-weight:700;fill:#f1e6d0}
 @keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-5deg)}75%{transform:rotate(5deg)}}
 @media(prefers-reduced-motion:reduce){.rcup,.steam path,.ice-cube,.wave,.drop{animation:none}.steam path{opacity:.6}}
-.cup{font-size:90px;background:none;padding:0;line-height:1}</style></head><body>
+.xo{display:grid;grid-template-columns:repeat(3,86px);gap:10px}
+.xo button{width:86px;height:86px;min-width:0;min-height:0;padding:0;border-radius:20px;border:2px solid var(--line,#dccfb4);background:var(--paper,#fbf6ea);box-shadow:none;font:700 48px/1 'Reem Kufi',Tajawal,sans-serif;color:var(--brown,#934713);cursor:pointer}
+.xo button.o{color:var(--olive,#586d54)}
+.xo button.w{background:#f1e6d0;border-color:var(--brown,#934713)}
+.xo button:disabled{cursor:default}</style></head><body>
 <main class="scr" id="scr">
   <header class="chead"><img class="logo big" src="logo.png" alt="قاهي" onload="document.getElementById('bn').hidden=true" onerror="this.remove()"><div class="brand" id="bn"></div></header>
   <section class="mid" id="v-in">
@@ -38,7 +42,7 @@
     <button class="cta" id="play">العب وأنت تنتظر</button>
     <div class="row2"><button class="ghost" id="another">تتبع طلب آخر</button><button class="ghost" id="cancel">إلغاء المتابعة</button></div>
   </section>
-  <section class="mid" id="v-game" hidden><div style="font-size:24px;font-weight:700">اضغط الفنجان!</div><div class="sub" id="gsc"></div><button class="cup" id="cup" aria-label="فنجان">&#9749;</button><button class="ghost" id="gb">رجوع</button></section>
+  <section class="mid" id="v-game" hidden><div style="font-size:24px;font-weight:700">اكس أو</div><div class="sub" id="gsc"></div><div class="xo" id="xo" dir="ltr"></div><div class="sub" id="gsc2"></div><button class="cta" id="again" hidden>العب مرة ثانية</button><button class="ghost" id="gb">رجوع</button></section>
   <section class="mid" id="v-ready" hidden>
     <div style="font-size:28px;font-weight:700">طلبك جاهز</div><div class="rcup hot" id="rc" role="img" aria-label="طلبك جاهز">
       <svg class="c-hot" viewBox="0 0 200 200">
@@ -86,7 +90,7 @@ import {getFirestore,doc,getDoc,onSnapshot,updateDoc,arrayUnion} from 'https://w
 import {getMessaging,getToken,isSupported} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
 const PUSH_ENABLED=true; // غيّرها إلى true بعد ما تفعّل Blaze وتنشر الدالة
 const $=i=>document.getElementById(i),C=2*Math.PI*100,BAD=/XXXX|YOUR-|0000000000/.test(JSON.stringify(FB.config));
-let gt=null,gs=0,gl=10,app,db,mine=null,state=null,unsub=null,ac=null,alarm=null,push=false;
+let gt=null,bd=[],over=false,busy=false,sc={w:0,l:0,d:0},app,db,mine=null,state=null,unsub=null,ac=null,alarm=null,push=false;
 $('arc').setAttribute('stroke-dasharray',C);
 const fmt=s=>Math.floor(s/60)+':'+('0'+s%60).slice(-2),left=()=>Math.max(0,Math.ceil((state.eta-Date.now())/1000));
 const norm=s=>s.replace(/[٠-٩]/g,d=>d.charCodeAt(0)-1632).replace(/[۰-۹]/g,d=>d.charCodeAt(0)-1776).trim();
@@ -95,7 +99,7 @@ const err=m=>$('er').textContent=m;
 function setRn(n){n=String(n);const fs=n.length>4?18:n.length>3?24:n.length>2?30:36;['rn1','rn2'].forEach(id=>{$(id).textContent=n;$(id).setAttribute('font-size',fs)})}
 let hotCup=true;setInterval(()=>{hotCup=!hotCup;$('rc').className='rcup '+(hotCup?'hot':'ice')},7000);
 if(/iphone|ipad/i.test(navigator.userAgent)&&!(navigator.standalone||matchMedia('(display-mode: standalone)').matches))$('ios').hidden=false;
-function show(v){const lg=document.querySelector('.chead .logo');if(lg)lg.src=v==='ready'?'logo-light.png':'logo.png';if(v!=='game')clearInterval(gt);['in','wait','ready','game'].forEach(x=>$('v-'+x).hidden=x!==v);$('scr').className='scr'+(v==='ready'?' ready':'')}
+function show(v){const lg=document.querySelector('.chead .logo');if(lg)lg.src=v==='ready'?'logo-light.png':'logo.png';if(v!=='game'){clearTimeout(gt);busy=false}['in','wait','ready','game'].forEach(x=>$('v-'+x).hidden=x!==v);$('scr').className='scr'+(v==='ready'?' ready':'')}
 function unlock(){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}}
 addEventListener('pointerdown',unlock);
 function chime(){if(!ac)return;[880,1175,1568].forEach((f,i)=>{const t=ac.currentTime+i*.22,o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.6);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.65)})}
@@ -124,8 +128,26 @@ async function enablePush(n){try{if(!(await isSupported()))throw 0;if(await Noti
   const reg=await navigator.serviceWorker.register('firebase-messaging-sw.js');
   const t=await getToken(getMessaging(app),{vapidKey:FB.vapidKey,serviceWorkerRegistration:reg});
   await updateDoc(doc(db,'orders',n),{tokens:arrayUnion(t)});push=true;$('ps').textContent='التنبيهات مفعّلة، تقدر تقفل الشاشة'}catch(e){push=false}}
-$('go').onclick=()=>track();$('in').onkeydown=e=>{if(e.key==='Enter')track()};$('play').onclick=()=>{gs=0;gl=10;$('gsc').textContent='الوقت 10 · النقاط 0';show('game');gt=setInterval(()=>{gl--;$('gsc').textContent=gl>0?'الوقت '+gl+' · النقاط '+gs:'انتهى! جبت '+gs+' نقطة';if(gl<=0)clearInterval(gt)},1000)};
-$('cup').onclick=()=>{if(gl>0){gs++;$('gsc').textContent='الوقت '+gl+' · النقاط '+gs}};
+$('go').onclick=()=>track();$('in').onkeydown=e=>{if(e.key==='Enter')track()};const W=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const winLine=b=>W.find(([x,y,z])=>b[x]&&b[x]===b[y]&&b[x]===b[z]);
+function gRender(line){$('xo').innerHTML=bd.map((v,i)=>'<button data-i="'+i+'" class="'+(v==='O'?'o':'')+(line&&line.includes(i)?' w':'')+'" aria-label="خانة '+(i+1)+'"'+(v||over?' disabled':'')+'>'+v+'</button>').join('');
+  $('gsc2').textContent='أنت '+sc.w+' · الكمبيوتر '+sc.l+' · تعادل '+sc.d}
+function gNew(){clearTimeout(gt);bd=Array(9).fill('');over=false;busy=false;$('again').hidden=true;$('gsc').textContent='دورك (X)';gRender()}
+function gEnd(){const l=winLine(bd);
+  if(l){over=true;const me=bd[l[0]]==='X';me?sc.w++:sc.l++;$('gsc').textContent=me?'فزت! مبروك':'فاز الكمبيوتر، جرب مرة ثانية'}
+  else if(bd.every(Boolean)){over=true;sc.d++;$('gsc').textContent='تعادل'}
+  else return false;
+  gRender(l);$('again').hidden=false;return true}
+function gPick(){const e=bd.map((v,i)=>v?-1:i).filter(i=>i>=0),f=p=>e.find(i=>{bd[i]=p;const w=winLine(bd);bd[i]='';return w});
+  const rnd=a=>a[Math.random()*a.length|0];
+  if(Math.random()<.2)return rnd(e);
+  let m=f('O');if(m!==undefined)return m;m=f('X');if(m!==undefined)return m;
+  if(!bd[4])return 4;const c=e.filter(i=>[0,2,6,8].includes(i));return c.length?rnd(c):rnd(e)}
+$('xo').onclick=e=>{const b=e.target.closest('button');if(!b||over||busy)return;const i=+b.dataset.i;if(bd[i])return;
+  bd[i]='X';gRender();if(gEnd())return;busy=true;$('gsc').textContent='الكمبيوتر يفكر...';
+  gt=setTimeout(()=>{bd[gPick()]='O';busy=false;gRender();if(!gEnd())$('gsc').textContent='دورك (X)'},500)};
+$('again').onclick=gNew;
+$('play').onclick=()=>{gNew();show('game')};
 $('gb').onclick=()=>show(state&&state.status==='ready'?'ready':'wait');
 $('got').onclick=leave;$('another').onclick=leave;$('cancel').onclick=leave;$('ok').onclick=()=>{$('silent').hidden=true;unlock()};
 show('in');

@@ -1,11 +1,11 @@
 self.FB = {
   config: {
-    apiKey: "AIzaSyAYOZ0OZdIyv93P53HRLk1DM-TtGd5DJwQ",
-    authDomain: "cafe-pager.firebaseapp.com",
-    projectId: "cafe-pager",
-    storageBucket: "cafe-pager.firebasestorage.app",
-    messagingSenderId: "533623360399",
-    appId: "1:533623360399:web:48087f3f5e38373df399fa"
+    apiKey: "AIzaSyAlQK3_oHKWIxiDcSbgzuxYo6WoZ9BRzjU",
+    authDomain: "pager-6453a.firebaseapp.com",
+    projectId: "pager-6453a",
+    storageBucket: "pager-6453a.firebasestorage.app",
+    messagingSenderId: "92844333652",
+    appId: "1:92844333652:web:60561040debe64503eebc1"
   },
   vapidKey: "YOUR_VAPID_PUBLIC_KEY"
 };

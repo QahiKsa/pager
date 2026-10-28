@@ -10,12 +10,7 @@ body{height:100dvh;overflow:hidden}
 .qc{display:flex;flex-direction:column;align-items:center;gap:1.2vh}
 .qb{background:#fffdf7;border:.9vh solid var(--olive);border-radius:3vh;padding:1.4vh;line-height:0}
 .num{background:var(--brown);color:var(--beige);font-family:'Reem Kufi',serif;font-size:9vh;line-height:1;border-radius:3vh;padding:1.2vh 5vh;min-width:20vh;text-align:center;box-shadow:0 1.2vh 1.2vh rgba(58,42,28,.25)}
-.strip{display:flex;align-items:center;gap:1.4vw;min-height:7vh;flex-wrap:wrap;justify-content:center}
-.strip b{color:var(--mute);font-size:2.6vh}.strip span.n{font-family:'Reem Kufi',serif;font-size:4.6vh;background:var(--brown);color:var(--beige);border-radius:2vh;padding:.4vh 2vh}
-.strip span.n.new{animation:pop .8s 4}@keyframes pop{50%{transform:scale(1.15)}}
 .pills{display:flex;gap:1.4vw}.pills span{background:var(--paper);border:1px solid var(--line);border-radius:40px;padding:.8vh 2.4vh;font-size:2.4vh;font-weight:700;color:var(--olive)}
-#snd{position:fixed;bottom:6px;left:6px;opacity:.4;font-size:11px;padding:5px 9px}
-@media(prefers-reduced-motion:reduce){.strip span.n.new{animation:none}}
 </style></head><body>
 <div id="login" class="lg"><div class="lgc"><img class="logo" src="logo.png" alt="" onerror="this.remove()"><div class="brand">شاشة العرض</div><div class="sub">سجّل دخول الأدمن مرة وحدة على الآيباد</div>
 <input id="em" type="email" placeholder="الإيميل" dir="ltr"><input id="pw" type="password" placeholder="كلمة المرور" dir="ltr"><button id="in">دخول</button><div id="le" class="er"></div></div></div>
@@ -25,31 +20,25 @@ body{height:100dvh;overflow:hidden}
     <div class="qb" id="q1"></div>
     <div class="num" id="dn">—</div>
   </div>
-  <div class="strip" id="R"></div>
   <div class="pills"><span>بدون تحميل أي تطبيق</span><span>فعّل التنبيهات</span><span>شيل الصامت</span></div>
 </main>
-<button id="snd">تفعيل صوت الشاشة</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="firebase-config.js"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getAuth,signInWithEmailAndPassword,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import {getFirestore,doc,collection,onSnapshot,query,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {getFirestore,doc,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 const $=i=>document.getElementById(i),esc=s=>String(s).replace(/[<>&"']/g,'');
 const base=location.href.split('?')[0].replace(/display\.html.*$/,'');
-let ac=null,seen=null,sub=null,order='',shown=null;
+let order='',shown=null;
 function qrs(){const s=Math.round(Math.min(innerHeight*.38,innerWidth*.7)),u=order?base+'?o='+encodeURIComponent(order):base,k=u+s;if(k===shown)return;shown=k;
   $('q1').innerHTML='';new QRCode($('q1'),{text:u,width:s,height:s});$('dn').textContent=order||'—'}
 addEventListener('resize',qrs);
-function chime(){if(!ac)return;[880,1175,1568].forEach((f,i)=>{const t=ac.currentTime+i*.22,o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.6);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.65)})}
-$('snd').onclick=()=>{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume();chime();$('snd').textContent='الصوت مفعّل'};
 const app=initializeApp(FB.config),auth=getAuth(app),db=getFirestore(app);
 const login=()=>signInWithEmailAndPassword(auth,$('em').value.trim(),$('pw').value).catch(e=>$('le').textContent='الإيميل أو كلمة المرور غلط ['+e.code+']');
 $('in').onclick=login;$('pw').onkeydown=e=>{if(e.key==='Enter')login()};
 qrs();
-onSnapshot(doc(db,'settings','display'),s=>{order=s.exists()?s.data().order:'';qrs()},()=>{});
-onAuthStateChanged(auth,u=>{$('login').hidden=!!u;if(u&&!sub)sub=onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(100)),x=>draw(x.docs.map(d=>d.data())),()=>{})});
-function draw(l){const rd=l.filter(o=>o.status==='ready').sort((a,b)=>(b.readyAt||0)-(a.readyAt||0));
-  const fresh=seen?rd.filter(o=>!seen.has(o.number)).map(o=>o.number):[];seen=new Set(rd.map(o=>o.number));if(fresh.length)chime();
-  $('R').innerHTML=rd.length?'<b>جاهز للاستلام:</b>'+rd.map(o=>'<span class="n'+(fresh.includes(o.number)?' new':'')+'">'+esc(o.number)+'</span>').join(''):''}
+let dispUn=null;const watchDisplay=()=>{dispUn&&dispUn();dispUn=onSnapshot(doc(db,'settings','display'),x=>{order=x.exists()?x.data().order:'';qrs()},()=>{})};
+watchDisplay();
+onAuthStateChanged(auth,u=>{$('login').hidden=!!u;if(u)watchDisplay()});
 </script></body></html>

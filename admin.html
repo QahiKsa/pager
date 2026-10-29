@@ -24,6 +24,7 @@ setTimeout(function(){var d=document.getElementById('le');if(!window.__ok&&d&&!d
     <section id="t-set" hidden>
       <div class="card"><h3 data-i="cafeName"></h3><div class="row"><input id="cn" style="flex:1;min-width:200px"><button id="sv" data-i="save"></button></div>
         <p class="sub" data-i="logoNote"></p></div>
+      <div class="card"><h3 data-i="pushUrl"></h3><div class="row"><input id="pu" dir="ltr" placeholder="https://cafe-push.xxxx.workers.dev" style="flex:1;min-width:220px"><button id="sp" data-i="save"></button></div></div>
       <div class="card"><h3 data-i="nextNo"></h3><div class="row"><input id="nx" type="text" inputmode="numeric" style="width:140px"><button id="sn" data-i="save"></button></div></div>
       <div class="card"><h3 data-i="qrTitle"></h3><div class="row"><input id="url" dir="ltr" style="flex:1;min-width:220px"><button id="mq" data-i="refresh"></button><button id="pr" data-i="print"></button></div><div id="qr"></div></div>
     </section>
@@ -36,14 +37,14 @@ setTimeout(function(){var d=document.getElementById('le');if(!window.__ok&&d&&!d
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import {getFirestore,doc,setDoc,updateDoc,collection,onSnapshot,query,orderBy,limit,runTransaction} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {getFirestore,doc,setDoc,updateDoc,collection,onSnapshot,query,orderBy,limit,runTransaction,arrayRemove} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 const BAD=/XXXX|YOUR-|0000000000/.test(JSON.stringify(FB.config)),$=i=>document.getElementById(i);
 const esc=s=>String(s).replace(/[<>&"']/g,''),fmt=s=>Math.floor(s/60)+':'+('0'+s%60).slice(-2),secs=e=>Math.max(0,Math.ceil((e-Date.now())/1000));
 const norm=s=>s.replace(/[٠-٩]/g,d=>d.charCodeAt(0)-1632).replace(/[۰-۹]/g,d=>d.charCodeAt(0)-1776).trim();
-const D={ar:{title:'لوحة الطلبات',signin:'سجّل دخولك للمتابعة',email:'الإيميل',pass:'كلمة المرور',login:'دخول',logout:'خروج',tabOrders:'الطلبات',tabSet:'الإعدادات والباركود',manual:'رقم يدوي (اختياري)',newOrder:'طلب جديد',prep:'قيد التحضير',ready:'جاهزة للاستلام',none:'ما فيه طلبات',rdy:'جاهز',done:'تم التسليم',showQR:'عرض على الآيباد',cafeName:'اسم الكوفي',save:'حفظ',nextNo:'رقم الطلب التالي',qrTitle:'باركود الموقع',refresh:'تحديث',print:'طباعة الملصق',min:'د',logoNote:'لوقو الكوفي: ارفع ملف logo.png في GitHub.',wrong:'الإيميل أو كلمة المرور غلط',perm:'ما عندك صلاحية: تأكد من إيميل الأدمن في قواعد Firestore وانشرها',fail:'تعذر التنفيذ: ',cfg:'إعدادات Firebase ما انضبطت في firebase-config.js'},
-en:{title:'Orders dashboard',signin:'Sign in to continue',email:'Email',pass:'Password',login:'Sign in',logout:'Sign out',tabOrders:'Orders',tabSet:'Settings & QR',manual:'Manual number (optional)',newOrder:'New order',prep:'Preparing',ready:'Ready for pickup',none:'No orders',rdy:'Ready',done:'Delivered',showQR:'Show on iPad',cafeName:'Café name',save:'Save',nextNo:'Next order number',qrTitle:'Site QR code',refresh:'Refresh',print:'Print poster',min:'min',logoNote:'Café logo: upload logo.png to GitHub.',wrong:'Wrong email or password',perm:'No permission: check the admin email in your Firestore rules and publish them',fail:'Failed: ',cfg:'Firebase settings missing in firebase-config.js'}};
+const D={ar:{title:'لوحة الطلبات',signin:'سجّل دخولك للمتابعة',email:'الإيميل',pass:'كلمة المرور',login:'دخول',logout:'خروج',tabOrders:'الطلبات',tabSet:'الإعدادات والباركود',manual:'رقم يدوي (اختياري)',newOrder:'طلب جديد',prep:'قيد التحضير',ready:'جاهزة للاستلام',none:'ما فيه طلبات',rdy:'جاهز',done:'تم التسليم',showQR:'عرض على الآيباد',cafeName:'اسم الكوفي',save:'حفظ',nextNo:'رقم الطلب التالي',qrTitle:'باركود الموقع',refresh:'تحديث',print:'طباعة الملصق',min:'د',logoNote:'لوقو الكوفي: ارفع ملف logo.png في GitHub.',wrong:'الإيميل أو كلمة المرور غلط',perm:'ما عندك صلاحية: تأكد من إيميل الأدمن في قواعد Firestore وانشرها',fail:'تعذر التنفيذ: ',pushUrl:'رابط خادم الإشعارات (Worker)',pushFail:'تعذر إرسال الإشعار: ',cfg:'إعدادات Firebase ما انضبطت في firebase-config.js'},
+en:{title:'Orders dashboard',signin:'Sign in to continue',email:'Email',pass:'Password',login:'Sign in',logout:'Sign out',tabOrders:'Orders',tabSet:'Settings & QR',manual:'Manual number (optional)',newOrder:'New order',prep:'Preparing',ready:'Ready for pickup',none:'No orders',rdy:'Ready',done:'Delivered',showQR:'Show on iPad',cafeName:'Café name',save:'Save',nextNo:'Next order number',qrTitle:'Site QR code',refresh:'Refresh',print:'Print poster',min:'min',logoNote:'Café logo: upload logo.png to GitHub.',wrong:'Wrong email or password',perm:'No permission: check the admin email in your Firestore rules and publish them',fail:'Failed: ',pushUrl:'Push server URL (Worker)',pushFail:'Push failed: ',cfg:'Firebase settings missing in firebase-config.js'}};
 const H={'auth/invalid-credential':'wrong','auth/invalid-email':'wrong'};
-let lang=localStorage.getItem('lang')||'ar',list=[],started=false,mins=10,cafe='',auth,db;
+let pushUrl='',lang=localStorage.getItem('lang')||'ar',list=[],started=false,mins=10,cafe='',auth,db;
 const t=k=>D[lang][k]||k;
 function applyLang(){localStorage.setItem('lang',lang);document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
   document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));document.querySelectorAll('[data-p]').forEach(e=>e.placeholder=t(e.dataset.p));
@@ -61,17 +62,26 @@ $('chips').onclick=e=>{const m=e.target.dataset.m;if(!m)return;mins=+m;document.
 function start(){
   $('url').value=location.href.split('?')[0].replace(/admin\.html.*$/,'');
   onSnapshot(doc(db,'settings','main'),s=>{cafe=s.exists()?s.data().name:'';$('cname').textContent=cafe||t('title');if(document.activeElement!==$('cn'))$('cn').value=cafe;$('pn').textContent=cafe;mq()},()=>{});
+  onSnapshot(doc(db,'settings','push'),s=>{pushUrl=s.exists()?s.data().url:'';if(document.activeElement!==$('pu'))$('pu').value=pushUrl||''},()=>{});
   onSnapshot(doc(db,'settings','counter'),s=>{if(document.activeElement!==$('nx'))$('nx').value=(s.exists()?s.data().n:0)+1},()=>{});
   onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(100)),s=>{list=s.docs.map(d=>d.data());render()},e=>{$('msg').textContent=e.code==='permission-denied'?t('perm'):e.code});
   setInterval(tickAll,1000)}
 $('sv').onclick=()=>run(()=>setDoc(doc(db,'settings','main'),{name:$('cn').value.trim()}));
+$('sp').onclick=()=>run(()=>setDoc(doc(db,'settings','push'),{url:$('pu').value.trim()}));
 $('sn').onclick=()=>run(()=>setDoc(doc(db,'settings','counter'),{n:Math.max(0,(parseInt(norm($('nx').value))||1)-1)}));
 $('ad').onclick=()=>run(async()=>{let n=norm($('nn').value);
   if(!n)n=String(await runTransaction(db,async tx=>{const r=doc(db,'settings','counter'),s=await tx.get(r),v=(s.exists()?s.data().n:0)+1;tx.set(r,{n:v});return v}));
   await setDoc(doc(db,'orders',n),{number:n,eta:Date.now()+mins*60000,total:mins*60,status:'preparing',tokens:[],createdAt:Date.now()});
   await setDoc(doc(db,'settings','display'),{order:n,at:Date.now()});$('nn').value=''});
-window.adj=(n,d)=>run(async()=>{const o=list.find(x=>x.number===n),eta=Math.max(Date.now()+30000,o.eta+d*60000);await updateDoc(doc(db,'orders',n),{eta,total:Math.max(o.total,secs(eta))})});
-window.st=(n,s)=>run(()=>updateDoc(doc(db,'orders',n),s==='ready'?{status:s,readyAt:Date.now()}:{status:s}));
+const tm=e=>new Date(e).toLocaleTimeString('ar-SA',{timeZone:'Asia/Riyadh',hour:'numeric',minute:'2-digit'});
+async function notify(o,ready){if(!pushUrl||!o||!(o.tokens||[]).length)return;
+  try{const idToken=await auth.currentUser.getIdToken();
+    const r=await fetch(pushUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken,tokens:o.tokens,number:o.number,cafe,ready,time:ready?'':tm(o.eta)})});
+    const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);
+    if(j.invalid&&j.invalid.length)await updateDoc(doc(db,'orders',o.number),{tokens:arrayRemove(...j.invalid)})}
+  catch(e){$('msg').textContent=t('pushFail')+(e.message||e)}}
+window.adj=(n,d)=>run(async()=>{const o=list.find(x=>x.number===n),eta=Math.max(Date.now()+30000,o.eta+d*60000);await updateDoc(doc(db,'orders',n),{eta,total:Math.max(o.total,secs(eta))});notify({...o,eta},false)});
+window.st=(n,s)=>run(async()=>{const o=list.find(x=>x.number===n);await updateDoc(doc(db,'orders',n),s==='ready'?{status:s,readyAt:Date.now()}:{status:s});if(s==='ready')notify(o,true)});
 window.sh=n=>run(()=>setDoc(doc(db,'settings','display'),{order:n,at:Date.now()}));
 function render(){let a='',b='',x=0,y=0;
   list.filter(o=>o.status==='preparing').sort((p,q)=>p.eta-q.eta).forEach(o=>{x++;const n=esc(o.number);

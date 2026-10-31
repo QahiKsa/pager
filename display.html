@@ -29,7 +29,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,signInWithEmailAndPassword,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 const $=i=>document.getElementById(i),esc=s=>String(s).replace(/[<>&"']/g,'');
-const base=location.href.split('?')[0].replace(/display\.html.*$/,'');
+const base=location.origin+location.pathname.replace(/[^/]*$/,'');
 let order='',shown=null;
 function qrs(){const s=Math.round(Math.min(innerHeight*.38,innerWidth*.7)),u=order?base+'?o='+encodeURIComponent(order):base,k=u+s;if(k===shown)return;shown=k;
   $('q1').innerHTML='';new QRCode($('q1'),{text:u,width:s,height:s});$('dn').textContent=order||'—'}

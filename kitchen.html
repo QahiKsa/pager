@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>شاشة الموظف</title>
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:22px}
+.o .n{font-size:60px}.o .c{font-size:28px}.bigok{width:100%;margin-top:10px;font-size:26px;padding:18px;background:var(--olive);color:var(--beige)}.bigok.arm{background:#b3261e}
+.rec{opacity:.8}.rec .n{font-size:34px}h3.t2{color:var(--mute);margin:6px 0 10px;font-size:16px}</style></head><body>
+<script>(function(){function show(m){var d=document.getElementById('le');if(d)d.textContent=m}
+addEventListener('error',function(e){var t=e.target;if(t&&t.src)show('Failed to load: '+t.src.split('/').pop());else show('Error: '+(e.message||''))},true);
+setTimeout(function(){var d=document.getElementById('le');if(!window.__ok&&d&&!d.textContent)show('Page did not start: check firebase-config.js')},4000)})();</script>
+<div id="login" class="lg"><div class="lgc"><img class="logo" src="logo.png" alt="" onerror="this.remove()"><div class="brand" data-i="title"></div>
+<input id="em" type="email" data-p="email" dir="ltr" autocomplete="username"><input id="pw" type="password" data-p="pass" dir="ltr" autocomplete="current-password">
+<button id="in" data-i="login"></button><div id="le" class="er"></div><button class="ghost" style="color:var(--brown)" id="lang0">English</button></div></div>
+<div id="app" hidden>
+<header class="top"><div class="who"><img class="logo" style="height:36px" src="logo-light.png" alt="" onerror="this.remove()"><span id="cname"></span></div>
+<button class="ghost" id="lang" style="margin-inline-start:auto"></button><button class="ghost" style="margin-inline-start:0" id="so" data-i="logout"></button></header>
+<main class="wrap"><div id="msg"></div><h3 class="t2" data-i="prep"></h3><div class="g" id="L1"></div><h3 class="t2" data-i="recent"></h3><div class="g" id="L2"></div></main></div>
+<script src="firebase-config.js"></script>
+<script>if(typeof FB==="undefined"){var d=document.getElementById("le");if(d)d.textContent="firebase-config.js missing or broken"}</script>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {getFirestore,doc,updateDoc,collection,onSnapshot,query,orderBy,limit,arrayRemove} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+const $=i=>document.getElementById(i),esc=s=>String(s).replace(/[<>&"']/g,''),fmt=s=>Math.floor(s/60)+':'+('0'+s%60).slice(-2),secs=e=>Math.max(0,Math.ceil((e-Date.now())/1000));
+const D={ar:{title:'شاشة الموظف',email:'الإيميل',pass:'كلمة المرور',login:'دخول',logout:'خروج',prep:'قيد التحضير',recent:'جاهزة مؤخراً',none:'ما فيه طلبات',rdy:'جاهز',confirm:'اضغط مرة ثانية للتأكيد',wrong:'الإيميل أو كلمة المرور غلط',perm:'ما عندك صلاحية: تأكد إن حسابك مضاف كموظف في القواعد',fail:'تعذر التنفيذ: ',pushFail:'تعذر إرسال الإشعار: '},
+en:{title:'Staff screen',email:'Email',pass:'Password',login:'Sign in',logout:'Sign out',prep:'Preparing',recent:'Recently ready',none:'No orders',rdy:'Ready',confirm:'Tap again to confirm',wrong:'Wrong email or password',perm:'No permission: make sure your account is added as staff in the rules',fail:'Failed: ',pushFail:'Push failed: '}};
+let lang=localStorage.getItem('lang')||'ar',list=[],cafe='',pushUrl='',armed=null,armT=null,auth,db,started=false;
+const t=k=>D[lang][k]||k;
+function applyLang(){localStorage.setItem('lang',lang);document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+  document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));document.querySelectorAll('[data-p]').forEach(e=>e.placeholder=t(e.dataset.p));
+  $('lang').textContent=$('lang0').textContent=lang==='ar'?'English':'عربي';document.title=t('title');$('cname').textContent=cafe||t('title');render()}
+$('lang').onclick=$('lang0').onclick=()=>{lang=lang==='ar'?'en':'ar';applyLang()};
+const app=initializeApp(FB.config);auth=getAuth(app);db=getFirestore(app);
+onAuthStateChanged(auth,u=>{$('login').hidden=!!u;$('app').hidden=!u;if(u&&!started){started=true;start()}});
+const login=()=>{$('le').textContent='';signInWithEmailAndPassword(auth,$('em').value.trim(),$('pw').value).catch(e=>$('le').textContent=(/credential|email/.test(e.code)?t('wrong'):'Error')+' ['+e.code+']')};
+$('in').onclick=login;$('pw').onkeydown=e=>{if(e.key==='Enter')login()};$('so').onclick=()=>signOut(auth);
+function start(){
+  onSnapshot(doc(db,'settings','main'),s=>{cafe=s.exists()?s.data().name:'';$('cname').textContent=cafe||t('title')},()=>{});
+  onSnapshot(doc(db,'settings','push'),s=>{pushUrl=s.exists()?s.data().url:''},()=>{});
+  onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(100)),s=>{list=s.docs.map(d=>d.data());render()},e=>{$('msg').textContent=e.code==='permission-denied'?t('perm'):e.code});
+  setInterval(tickAll,1000)}
+async function notify(o){if(!pushUrl||!o||!(o.tokens||[]).length)return;
+  try{const idToken=await auth.currentUser.getIdToken();
+    const r=await fetch(pushUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken,tokens:o.tokens,number:o.number,cafe,ready:true,time:''})});
+    const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);
+    if(j.invalid&&j.invalid.length)await updateDoc(doc(db,'orders',o.number),{tokens:arrayRemove(...j.invalid)}).catch(()=>{})}
+  catch(e){$('msg').textContent=t('pushFail')+(e.message||e)}}
+window.go=n=>{if(armed!==n){armed=n;clearTimeout(armT);armT=setTimeout(()=>{armed=null;render()},3000);render();return}
+  armed=null;clearTimeout(armT);const o=list.find(x=>x.number===n);$('msg').textContent='';
+  updateDoc(doc(db,'orders',n),{status:'ready',readyAt:Date.now()}).then(()=>notify(o)).catch(e=>{$('msg').textContent=e.code==='permission-denied'?t('perm'):t('fail')+(e.code||e.message)})};
+function render(){
+  const p=list.filter(o=>o.status==='preparing').sort((a,b)=>a.eta-b.eta),r=list.filter(o=>o.status==='ready').sort((a,b)=>(b.readyAt||0)-(a.readyAt||0)).slice(0,6);
+  $('L1').innerHTML=p.map(o=>{const n=esc(o.number),a=armed===o.number;return '<div class="o"><div class="h"><span class="n">'+n+'</span><span class="c" data-e="'+o.eta+'"></span></div><button class="bigok'+(a?' arm':'')+'" onclick="go(\''+n+'\')">'+(a?t('confirm'):t('rdy'))+'</button></div>'}).join('')||'<div class="empty">'+t('none')+'</div>';
+  $('L2').innerHTML=r.map(o=>'<div class="o done rec"><div class="h"><span class="n">'+esc(o.number)+'</span></div></div>').join('')||'<div class="empty">'+t('none')+'</div>';tickAll()}
+function tickAll(){document.querySelectorAll('[data-e]').forEach(e=>e.textContent=fmt(secs(+e.dataset.e)))}
+applyLang();window.__ok=1;
+</script></body></html>

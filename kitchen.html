@@ -22,10 +22,12 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,doc,updateDoc,collection,onSnapshot,query,orderBy,limit,arrayRemove} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 const $=i=>document.getElementById(i),esc=s=>String(s).replace(/[<>&"']/g,''),fmt=s=>Math.floor(s/60)+':'+('0'+s%60).slice(-2),secs=e=>Math.max(0,Math.ceil((e-Date.now())/1000));
-const D={ar:{title:'شاشة الموظف',email:'الإيميل',pass:'كلمة المرور',login:'دخول',logout:'خروج',prep:'قيد التحضير',recent:'جاهزة مؤخراً',none:'ما فيه طلبات',rdy:'جاهز',confirm:'اضغط مرة ثانية للتأكيد',wrong:'الإيميل أو كلمة المرور غلط',perm:'ما عندك صلاحية: تأكد إن حسابك مضاف كموظف في القواعد',fail:'تعذر التنفيذ: ',pushFail:'تعذر إرسال الإشعار: '},
-en:{title:'Staff screen',email:'Email',pass:'Password',login:'Sign in',logout:'Sign out',prep:'Preparing',recent:'Recently ready',none:'No orders',rdy:'Ready',confirm:'Tap again to confirm',wrong:'Wrong email or password',perm:'No permission: make sure your account is added as staff in the rules',fail:'Failed: ',pushFail:'Push failed: '}};
+const D={ar:{title:'شاشة الموظف',email:'الإيميل',pass:'كلمة المرور',login:'دخول',logout:'خروج',prep:'قيد التحضير',recent:'جاهزة مؤخراً',none:'ما فيه طلبات',rdy:'جاهز',confirm:'اضغط مرة ثانية للتأكيد',wrong:'الإيميل أو كلمة المرور غلط',perm:'ما عندك صلاحية: تأكد إن حسابك مضاف كموظف في القواعد',fail:'تعذر التنفيذ: ',pushFail:'تعذر إرسال الإشعار: ',arrived:'وصل'},
+en:{title:'Staff screen',email:'Email',pass:'Password',login:'Sign in',logout:'Sign out',prep:'Preparing',recent:'Recently ready',none:'No orders',rdy:'Ready',confirm:'Tap again to confirm',wrong:'Wrong email or password',perm:'No permission: make sure your account is added as staff in the rules',fail:'Failed: ',pushFail:'Push failed: ',arrived:'Arrived'}};
 let lang=localStorage.getItem('lang')||'ar',list=[],cafe='',pushUrl='',armed=null,armT=null,auth,db,started=false;
 const t=k=>D[lang][k]||k;
+let first=true,ac=null;function beep(){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume();[880,1175].forEach((f,i)=>{const t0=ac.currentTime+i*.2,o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(.3,t0+.03);g.gain.exponentialRampToValueAtTime(.001,t0+.4);o.connect(g);g.connect(ac.destination);o.start(t0);o.stop(t0+.45)})}catch(e){}}
+
 function applyLang(){localStorage.setItem('lang',lang);document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
   document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));document.querySelectorAll('[data-p]').forEach(e=>e.placeholder=t(e.dataset.p));
   $('lang').textContent=$('lang0').textContent=lang==='ar'?'English':'عربي';document.title=t('title');$('cname').textContent=cafe||t('title');render()}
@@ -37,7 +39,7 @@ $('in').onclick=login;$('pw').onkeydown=e=>{if(e.key==='Enter')login()};$('so').
 function start(){
   onSnapshot(doc(db,'settings','main'),s=>{cafe=s.exists()?s.data().name:'';$('cname').textContent=cafe||t('title')},()=>{});
   onSnapshot(doc(db,'settings','push'),s=>{pushUrl=s.exists()?s.data().url:''},()=>{});
-  onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(100)),s=>{list=s.docs.map(d=>d.data());render()},e=>{$('msg').textContent=e.code==='permission-denied'?t('perm'):e.code});
+  onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(100)),s=>{const had=first;first=false;const prev=new Set(list.filter(o=>o.arrived).map(o=>o.number));list=s.docs.map(d=>d.data());if(!had&&list.some(o=>o.arrived&&!prev.has(o.number)))beep();render()},e=>{$('msg').textContent=e.code==='permission-denied'?t('perm'):e.code});
   setInterval(tickAll,1000)}
 async function notify(o){if(!pushUrl||!o||!(o.tokens||[]).length)return;
   try{const idToken=await auth.currentUser.getIdToken();
@@ -50,7 +52,7 @@ window.go=n=>{if(armed!==n){armed=n;clearTimeout(armT);armT=setTimeout(()=>{arme
   updateDoc(doc(db,'orders',n),{status:'ready',readyAt:Date.now()}).then(()=>notify(o)).catch(e=>{$('msg').textContent=e.code==='permission-denied'?t('perm'):t('fail')+(e.code||e.message)})};
 function render(){
   const p=list.filter(o=>o.status==='preparing').sort((a,b)=>a.eta-b.eta),r=list.filter(o=>o.status==='ready').sort((a,b)=>(b.readyAt||0)-(a.readyAt||0)).slice(0,6);
-  $('L1').innerHTML=p.map(o=>{const n=esc(o.number),a=armed===o.number;return '<div class="o"><div class="h"><span class="n">'+n+'</span><span class="c" data-e="'+o.eta+'"></span></div><button class="bigok'+(a?' arm':'')+'" onclick="go(\''+n+'\')">'+(a?t('confirm'):t('rdy'))+'</button></div>'}).join('')||'<div class="empty">'+t('none')+'</div>';
+  $('L1').innerHTML=p.map(o=>{const n=esc(o.number),a=armed===o.number;return '<div class="o"><div class="h"><span class="n">'+n+'</span>'+(o.arrived?'<span style="background:var(--olive);color:var(--beige);border-radius:20px;padding:3px 10px;font-size:13px">'+t('arrived')+'</span>':'')+'<span class="c" data-e="'+o.eta+'"></span></div><button class="bigok'+(a?' arm':'')+'" onclick="go(\''+n+'\')">'+(a?t('confirm'):t('rdy'))+'</button></div>'}).join('')||'<div class="empty">'+t('none')+'</div>';
   $('L2').innerHTML=r.map(o=>'<div class="o done rec"><div class="h"><span class="n">'+esc(o.number)+'</span></div></div>').join('')||'<div class="empty">'+t('none')+'</div>';tickAll()}
 function tickAll(){document.querySelectorAll('[data-e]').forEach(e=>e.textContent=fmt(secs(+e.dataset.e)))}
 applyLang();window.__ok=1;

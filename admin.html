@@ -12,18 +12,20 @@ setTimeout(function(){var d=document.getElementById('le');if(!window.__ok&&d&&!d
   <button id="in" data-i="login"></button><div id="le" class="er"></div><button class="ghost" style="color:var(--brown)" id="lang0">English</button></div></div>
 <div id="app" hidden>
   <header class="top"><div class="who"><img class="logo" style="height:36px" src="logo-light.png" alt="" onerror="this.remove()"><span id="cname"></span></div>
-    <nav><button class="tab on" data-t="orders" data-i="tabOrders"></button><button class="tab" data-t="set" data-i="tabSet"></button></nav>
+    <nav><button class="tab on" data-t="orders" data-i="tabOrders"></button><button class="tab" data-t="stats" data-i="tabStats"></button><button class="tab" data-t="set" data-i="tabSet"></button></nav>
     <button class="ghost" id="lang" style="margin-inline-start:auto"></button><button class="ghost" style="margin-inline-start:0" id="so" data-i="logout"></button></header>
   <main class="wrap"><div id="msg"></div>
     <section id="t-orders">
       <div class="card add"><input id="nn" type="text" inputmode="numeric" autocomplete="off" data-p="manual">
-        <div class="chips" id="chips"></div><button id="ad" data-i="newOrder"></button></div>
+        <div class="chips" id="chips"></div><span id="ai" class="sub"></span><button id="ad" data-i="newOrder"></button></div>
       <div class="stats"><div class="stat"><b id="s1">0</b><span data-i="prep"></span></div><div class="stat"><b id="s2">0</b><span data-i="ready"></span></div></div>
       <div class="cols"><div class="col"><h3 data-i="prep"></h3><div id="L1"></div></div><div class="col"><h3 data-i="ready"></h3><div id="L2"></div></div></div>
     </section>
+    <section id="t-stats" hidden><div class="stats" id="sx"></div><div class="card"><h3 data-i="byHour"></h3><div id="hb"></div></div></section>
     <section id="t-set" hidden>
       <div class="card"><h3 data-i="cafeName"></h3><div class="row"><input id="cn" style="flex:1;min-width:200px"><button id="sv" data-i="save"></button></div>
-        <p class="sub" data-i="logoNote"></p></div>
+        <p class="sub" data-i="logoNote"></p>
+        <div class="row" style="margin-top:8px"><input id="rvu" dir="ltr" data-p="reviewUrl" style="flex:1;min-width:220px"></div><label style="display:block;margin-top:10px"><input type="checkbox" id="cbx"> <span data-i="curb"></span></label></div>
       <div class="card"><h3 data-i="pushUrl"></h3><div class="row"><input id="pu" dir="ltr" placeholder="https://cafe-push.xxxx.workers.dev" style="flex:1;min-width:220px"><button id="sp" data-i="save"></button></div></div>
       <div class="card"><h3 data-i="nextNo"></h3><div class="row"><input id="nx" type="text" inputmode="numeric" style="width:140px"><button id="sn" data-i="save"></button></div></div>
       <div class="card"><h3 data-i="qrTitle"></h3><div class="row"><input id="url" dir="ltr" style="flex:1;min-width:220px"><button id="mq" data-i="refresh"></button><button id="pr" data-i="print"></button></div><div id="qr"></div></div>
@@ -41,15 +43,17 @@ import {getFirestore,doc,setDoc,updateDoc,collection,onSnapshot,query,orderBy,li
 const BAD=/XXXX|YOUR-|0000000000/.test(JSON.stringify(FB.config)),$=i=>document.getElementById(i);
 const esc=s=>String(s).replace(/[<>&"']/g,''),fmt=s=>Math.floor(s/60)+':'+('0'+s%60).slice(-2),secs=e=>Math.max(0,Math.ceil((e-Date.now())/1000));
 const norm=s=>s.replace(/[٠-٩]/g,d=>d.charCodeAt(0)-1632).replace(/[۰-۹]/g,d=>d.charCodeAt(0)-1776).trim();
-const D={ar:{title:'لوحة الطلبات',signin:'سجّل دخولك للمتابعة',email:'الإيميل',pass:'كلمة المرور',login:'دخول',logout:'خروج',tabOrders:'الطلبات',tabSet:'الإعدادات والباركود',manual:'رقم يدوي (اختياري)',newOrder:'طلب جديد',prep:'قيد التحضير',ready:'جاهزة للاستلام',none:'ما فيه طلبات',rdy:'جاهز',done:'تم التسليم',showQR:'عرض على الآيباد',cafeName:'اسم الكوفي',save:'حفظ',nextNo:'رقم الطلب التالي',qrTitle:'باركود الموقع',refresh:'تحديث',print:'طباعة الملصق',min:'د',logoNote:'لوقو الكوفي: ارفع ملف logo.png في GitHub.',wrong:'الإيميل أو كلمة المرور غلط',perm:'ما عندك صلاحية: تأكد من إيميل الأدمن في قواعد Firestore وانشرها',fail:'تعذر التنفيذ: ',pushUrl:'رابط خادم الإشعارات (Worker)',pushFail:'تعذر إرسال الإشعار: ',cfg:'إعدادات Firebase ما انضبطت في firebase-config.js'},
-en:{title:'Orders dashboard',signin:'Sign in to continue',email:'Email',pass:'Password',login:'Sign in',logout:'Sign out',tabOrders:'Orders',tabSet:'Settings & QR',manual:'Manual number (optional)',newOrder:'New order',prep:'Preparing',ready:'Ready for pickup',none:'No orders',rdy:'Ready',done:'Delivered',showQR:'Show on iPad',cafeName:'Café name',save:'Save',nextNo:'Next order number',qrTitle:'Site QR code',refresh:'Refresh',print:'Print poster',min:'min',logoNote:'Café logo: upload logo.png to GitHub.',wrong:'Wrong email or password',perm:'No permission: check the admin email in your Firestore rules and publish them',fail:'Failed: ',pushUrl:'Push server URL (Worker)',pushFail:'Push failed: ',cfg:'Firebase settings missing in firebase-config.js'}};
+const D={ar:{title:'لوحة الطلبات',signin:'سجّل دخولك للمتابعة',email:'الإيميل',pass:'كلمة المرور',login:'دخول',logout:'خروج',tabOrders:'الطلبات',tabSet:'الإعدادات والباركود',manual:'رقم يدوي (اختياري)',newOrder:'طلب جديد',prep:'قيد التحضير',ready:'جاهزة للاستلام',none:'ما فيه طلبات',rdy:'جاهز',done:'تم التسليم',showQR:'عرض على الآيباد',cafeName:'اسم الكوفي',save:'حفظ',nextNo:'رقم الطلب التالي',qrTitle:'باركود الموقع',refresh:'تحديث',print:'طباعة الملصق',min:'د',logoNote:'لوقو الكوفي: ارفع ملف logo.png في GitHub.',wrong:'الإيميل أو كلمة المرور غلط',perm:'ما عندك صلاحية: تأكد من إيميل الأدمن في قواعد Firestore وانشرها',fail:'تعذر التنفيذ: ',pushUrl:'رابط خادم الإشعارات (Worker)',pushFail:'تعذر إرسال الإشعار: ',auto:'تلقائي',autoNow:'المتوسط الحالي: ',arrived:'وصل',tabStats:'الإحصائيات',sOrders:'طلبات اليوم',sAvg:'متوسط التحضير (د)',sMax:'أطول تحضير (د)',byHour:'الطلبات حسب الساعة',reviewUrl:'رابط التقييم (قوقل أو انستقرام)',curb:'تفعيل زر «أنا وصلت» لزبائن السيارة',cfg:'إعدادات Firebase ما انضبطت في firebase-config.js'},
+en:{title:'Orders dashboard',signin:'Sign in to continue',email:'Email',pass:'Password',login:'Sign in',logout:'Sign out',tabOrders:'Orders',tabSet:'Settings & QR',manual:'Manual number (optional)',newOrder:'New order',prep:'Preparing',ready:'Ready for pickup',none:'No orders',rdy:'Ready',done:'Delivered',showQR:'Show on iPad',cafeName:'Café name',save:'Save',nextNo:'Next order number',qrTitle:'Site QR code',refresh:'Refresh',print:'Print poster',min:'min',logoNote:'Café logo: upload logo.png to GitHub.',wrong:'Wrong email or password',perm:'No permission: check the admin email in your Firestore rules and publish them',fail:'Failed: ',pushUrl:'Push server URL (Worker)',pushFail:'Push failed: ',auto:'Auto',autoNow:'Current average: ',arrived:'Arrived',tabStats:'Stats',sOrders:'Orders today',sAvg:'Avg prep (min)',sMax:'Longest (min)',byHour:'Orders by hour',reviewUrl:'Review link (Google or Instagram)',curb:'Enable "I am here" button (curbside)',cfg:'Firebase settings missing in firebase-config.js'}};
 const H={'auth/invalid-credential':'wrong','auth/invalid-email':'wrong'};
-let pushUrl='',lang=localStorage.getItem('lang')||'ar',list=[],started=false,mins=10,cafe='',auth,db;
+let pushUrl='',lang=localStorage.getItem('lang')||'ar',list=[],started=false,mins=0,cafe='',auth,db;
 const t=k=>D[lang][k]||k;
+let first=true,ac=null;function beep(){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume();[880,1175].forEach((f,i)=>{const t0=ac.currentTime+i*.2,o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(.3,t0+.03);g.gain.exponentialRampToValueAtTime(.001,t0+.4);o.connect(g);g.connect(ac.destination);o.start(t0);o.stop(t0+.45)})}catch(e){}}
+
 function applyLang(){localStorage.setItem('lang',lang);document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
   document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));document.querySelectorAll('[data-p]').forEach(e=>e.placeholder=t(e.dataset.p));
   $('lang').textContent=$('lang0').textContent=lang==='ar'?'English':'عربي';document.title=t('title');$('cname').textContent=cafe||t('title');
-  $('chips').innerHTML=[5,10,15,20,30].map(m=>'<button class="chip'+(m===mins?' on':'')+'" data-m="'+m+'">'+m+' '+t('min')+'</button>').join('');render()}
+  $('chips').innerHTML=[0,5,10,15,20,30].map(m=>'<button class="chip'+(m===mins?' on':'')+'" data-m="'+m+'">'+(m?m+' '+t('min'):t('auto'))+'</button>').join('');render()}
 $('lang').onclick=$('lang0').onclick=()=>{lang=lang==='ar'?'en':'ar';applyLang()};
 if(BAD)$('le').textContent=t('cfg');
 else{const app=initializeApp(FB.config);auth=getAuth(app);db=getFirestore(app);
@@ -57,39 +61,48 @@ else{const app=initializeApp(FB.config);auth=getAuth(app);db=getFirestore(app);
 const login=()=>{$('le').textContent='';signInWithEmailAndPassword(auth,$('em').value.trim(),$('pw').value).catch(e=>$('le').textContent=(H[e.code]?t('wrong'):'Error')+' ['+e.code+']')};
 $('in').onclick=login;$('pw').onkeydown=e=>{if(e.key==='Enter')login()};$('so').onclick=()=>signOut(auth);
 const run=async f=>{try{$('msg').textContent='';await f()}catch(e){$('msg').textContent=e.code==='permission-denied'?t('perm'):t('fail')+(e.code||e.message)}};
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));$('t-orders').hidden=b.dataset.t!=='orders';$('t-set').hidden=b.dataset.t!=='set'});
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));$('t-orders').hidden=b.dataset.t!=='orders';$('t-set').hidden=b.dataset.t!=='set';$('t-stats').hidden=b.dataset.t!=='stats'});
 $('chips').onclick=e=>{const m=e.target.dataset.m;if(!m)return;mins=+m;document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.m===m))};
 function start(){
-  $('url').value=location.href.split('?')[0].replace(/admin\.html.*$/,'');
-  onSnapshot(doc(db,'settings','main'),s=>{cafe=s.exists()?s.data().name:'';$('cname').textContent=cafe||t('title');if(document.activeElement!==$('cn'))$('cn').value=cafe;$('pn').textContent=cafe;mq()},()=>{});
+  $('url').value=location.origin+location.pathname.replace(/[^/]*$/,'');
+  onSnapshot(doc(db,'settings','main'),s=>{cafe=s.exists()?s.data().name:'';$('cname').textContent=cafe||t('title');if(document.activeElement!==$('cn'))$('cn').value=cafe;{const d=s.exists()?s.data():{};if(document.activeElement!==$('rvu'))$('rvu').value=d.reviewUrl||'';$('cbx').checked=!!d.curbside}$('pn').textContent=cafe;mq()},()=>{});
   onSnapshot(doc(db,'settings','push'),s=>{pushUrl=s.exists()?s.data().url:'';if(document.activeElement!==$('pu'))$('pu').value=pushUrl||''},()=>{});
   onSnapshot(doc(db,'settings','counter'),s=>{if(document.activeElement!==$('nx'))$('nx').value=(s.exists()?s.data().n:0)+1},()=>{});
-  onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(100)),s=>{list=s.docs.map(d=>d.data());render()},e=>{$('msg').textContent=e.code==='permission-denied'?t('perm'):e.code});
-  setInterval(tickAll,1000)}
-$('sv').onclick=()=>run(()=>setDoc(doc(db,'settings','main'),{name:$('cn').value.trim()}));
+  onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(300)),s=>{const had=first;first=false;const prev=new Set(list.filter(o=>o.arrived).map(o=>o.number));list=s.docs.map(d=>d.data());if(!had&&list.some(o=>o.arrived&&!prev.has(o.number)))beep();render()},e=>{$('msg').textContent=e.code==='permission-denied'?t('perm'):e.code});
+  setInterval(tickAll,1000);setInterval(remind,30000)}
+$('sv').onclick=()=>run(()=>setDoc(doc(db,'settings','main'),{name:$('cn').value.trim(),reviewUrl:$('rvu').value.trim(),curbside:$('cbx').checked}));
 $('sp').onclick=()=>run(()=>setDoc(doc(db,'settings','push'),{url:$('pu').value.trim()}));
 $('sn').onclick=()=>run(()=>setDoc(doc(db,'settings','counter'),{n:Math.max(0,(parseInt(norm($('nx').value))||1)-1)}));
 $('ad').onclick=()=>run(async()=>{let n=norm($('nn').value);
   if(!n)n=String(await runTransaction(db,async tx=>{const r=doc(db,'settings','counter'),s=await tx.get(r),v=(s.exists()?s.data().n:0)+1;tx.set(r,{n:v});return v}));
-  await setDoc(doc(db,'orders',n),{number:n,eta:Date.now()+mins*60000,total:mins*60,status:'preparing',tokens:[],createdAt:Date.now()});
+  const m=mins||autoMins();await setDoc(doc(db,'orders',n),{number:n,eta:Date.now()+m*60000,total:m*60,status:'preparing',tokens:[],createdAt:Date.now()});
   await setDoc(doc(db,'settings','display'),{order:n,at:Date.now()});$('nn').value=''});
 const tm=e=>new Date(e).toLocaleTimeString('ar-SA',{timeZone:'Asia/Riyadh',hour:'numeric',minute:'2-digit'});
-async function notify(o,ready){if(!pushUrl||!o||!(o.tokens||[]).length)return;
+async function notify(o,ready,remind){if(!pushUrl||!o||!(o.tokens||[]).length)return;
   try{const idToken=await auth.currentUser.getIdToken();
-    const r=await fetch(pushUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken,tokens:o.tokens,number:o.number,cafe,ready,time:ready?'':tm(o.eta)})});
+    const r=await fetch(pushUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken,tokens:o.tokens,number:o.number,cafe,ready,remind:!!remind,time:ready?'':tm(o.eta)})});
     const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);
     if(j.invalid&&j.invalid.length)await updateDoc(doc(db,'orders',o.number),{tokens:arrayRemove(...j.invalid)})}
   catch(e){$('msg').textContent=t('pushFail')+(e.message||e)}}
+const REMIND_MIN=3;
+function autoMins(){const d=list.filter(o=>o.readyAt&&o.createdAt&&o.readyAt>o.createdAt).sort((p,q)=>q.readyAt-p.readyAt).slice(0,10).map(o=>(o.readyAt-o.createdAt)/60000);
+  if(!d.length)return 8;return Math.min(30,Math.max(2,Math.round(d.reduce((p,q)=>p+q,0)/d.length)))}
+function remind(){const now=Date.now();list.filter(o=>o.status==='ready'&&o.readyAt&&now-o.readyAt>REMIND_MIN*60000&&!o.reminded&&(o.tokens||[]).length).forEach(o=>{o.reminded=true;updateDoc(doc(db,'orders',o.number),{reminded:true}).then(()=>notify(o,true,true)).catch(()=>{})})}
+function stats(){const d0=new Date();d0.setHours(0,0,0,0);const td=list.filter(o=>o.createdAt>=d0.getTime());
+  const dn=td.filter(o=>o.readyAt&&o.readyAt>o.createdAt).map(o=>(o.readyAt-o.createdAt)/60000),avg=dn.length?dn.reduce((p,q)=>p+q,0)/dn.length:0,mx=dn.length?Math.max(...dn):0;
+  $('sx').innerHTML=[[td.length,t('sOrders')],[avg?avg.toFixed(1):'-',t('sAvg')],[mx?mx.toFixed(1):'-',t('sMax')]].map(v=>'<div class="stat"><b>'+v[0]+'</b>'+v[1]+'</div>').join('');
+  const hr={};td.forEach(o=>{const h=new Date(o.createdAt).getHours();hr[h]=(hr[h]||0)+1});const m=Math.max(1,...Object.values(hr));
+  $('hb').innerHTML=Object.keys(hr).sort((p,q)=>p-q).map(h=>'<div class="row" style="gap:8px"><span style="width:48px">'+h+':00</span><div style="flex:1;background:var(--beige);border-radius:8px"><div style="width:'+(hr[h]/m*100)+'%;background:var(--olive);height:16px;border-radius:8px"></div></div><b>'+hr[h]+'</b></div>').join('')||'<div class="empty">'+t('none')+'</div>'}
 window.adj=(n,d)=>run(async()=>{const o=list.find(x=>x.number===n),eta=Math.max(Date.now()+30000,o.eta+d*60000);await updateDoc(doc(db,'orders',n),{eta,total:Math.max(o.total,secs(eta))});notify({...o,eta},false)});
 window.st=(n,s)=>run(async()=>{const o=list.find(x=>x.number===n);await updateDoc(doc(db,'orders',n),s==='ready'?{status:s,readyAt:Date.now()}:{status:s});if(s==='ready')notify(o,true)});
 window.sh=n=>run(()=>setDoc(doc(db,'settings','display'),{order:n,at:Date.now()}));
 function render(){let a='',b='',x=0,y=0;
   list.filter(o=>o.status==='preparing').sort((p,q)=>p.eta-q.eta).forEach(o=>{x++;const n=esc(o.number);
-    a+='<div class="o"><div class="h"><span class="n">'+n+'</span><span class="c" data-e="'+o.eta+'"></span></div><div class="acts"><button onclick="adj(\''+n+'\',-2)">−2</button><button onclick="adj(\''+n+'\',2)">+2</button><button onclick="adj(\''+n+'\',5)">+5</button><button onclick="sh(\''+n+'\')">'+t('showQR')+'</button><button class="ok" onclick="st(\''+n+'\',\'ready\')">'+t('rdy')+'</button></div></div>'});
+    a+='<div class="o"><div class="h"><span class="n">'+n+'</span>'+(o.arrived?'<span style="background:var(--olive);color:var(--beige);border-radius:20px;padding:3px 10px;font-size:13px">'+t('arrived')+'</span>':'')+'<span class="c" data-e="'+o.eta+'"></span></div><div class="acts"><button onclick="adj(\''+n+'\',-2)">−2</button><button onclick="adj(\''+n+'\',2)">+2</button><button onclick="adj(\''+n+'\',5)">+5</button><button onclick="sh(\''+n+'\')">'+t('showQR')+'</button><button class="ok" onclick="st(\''+n+'\',\'ready\')">'+t('rdy')+'</button></div></div>'});
   list.filter(o=>o.status==='ready').forEach(o=>{y++;const n=esc(o.number);
-    b+='<div class="o done"><div class="h"><span class="n">'+n+'</span><button onclick="st(\''+n+'\',\'picked\')">'+t('done')+'</button></div></div>'});
+    b+='<div class="o done"><div class="h"><span class="n">'+n+'</span>'+(o.arrived?'<span style="background:var(--olive);color:var(--beige);border-radius:20px;padding:3px 10px;font-size:13px">'+t('arrived')+'</span>':'')+'<button onclick="st(\''+n+'\',\'picked\')">'+t('done')+'</button></div></div>'});
   $('L1').innerHTML=a||'<div class="empty">'+t('none')+'</div>';$('L2').innerHTML=b||'<div class="empty">'+t('none')+'</div>';
-  $('s1').textContent=x;$('s2').textContent=y;tickAll()}
+  $('s1').textContent=x;$('s2').textContent=y;$('ai').textContent=mins?'':t('autoNow')+autoMins()+' '+t('min');stats();tickAll()}
 function tickAll(){document.querySelectorAll('[data-e]').forEach(e=>e.textContent=fmt(secs(+e.dataset.e)))}
 function mq(){if(!window.QRCode)return;['qr','qr2'].forEach(id=>{$(id).innerHTML='';new QRCode($(id),{text:$('url').value,width:id==='qr'?200:300,height:id==='qr'?200:300})})}
 $('mq').onclick=mq;$('pr').onclick=()=>{mq();$('poster').hidden=false;print();$('poster').hidden=true};

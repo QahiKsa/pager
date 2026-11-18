@@ -30,7 +30,8 @@
 .xo button{width:86px;height:86px;min-width:0;min-height:0;padding:0;border-radius:20px;border:2px solid var(--line,#dccfb4);background:var(--paper,#fbf6ea);box-shadow:none;font:700 48px/1 'Reem Kufi',Tajawal,sans-serif;color:var(--brown,#934713);cursor:pointer}
 .xo button.o{color:var(--olive,#586d54)}
 .xo button.w{background:#f1e6d0;border-color:var(--brown,#934713)}
-.xo button:disabled{cursor:default}</style></head><body>
+.xo button:disabled{cursor:default}
+[data-arr]{display:none}.cb [data-arr]{display:block}</style></head><body>
 <main class="scr" id="scr">
   <header class="chead"><img class="logo big" src="logo.png" alt="قاهي" onload="document.getElementById('bn').hidden=true" onerror="this.remove()"><div class="brand" id="bn"></div></header>
   <section class="mid" id="v-in">
@@ -45,9 +46,11 @@
     <div class="sub" id="ps"></div>
     <button class="cta" id="pb" hidden>فعّل التنبيهات</button>
     <button class="cta" id="play">العب وأنت تنتظر</button>
+    <button class="ghost" data-arr style="color:var(--brown)">أنا وصلت</button>
     <div class="row2"><button class="ghost" id="another">تتبع طلب آخر</button><button class="ghost" id="cancel">إلغاء المتابعة</button></div>
   </section>
-  <section class="mid" id="v-game" hidden><div style="font-size:24px;font-weight:700">اكس أو</div><div class="sub" id="gsc"></div><div class="xo" id="xo" dir="ltr"></div><div class="sub" id="gsc2"></div><button class="cta" id="again" hidden>العب مرة ثانية</button><button class="ghost" id="gb">رجوع</button></section>
+  <section class="mid" id="v-thanks" hidden><div style="font-size:28px;font-weight:700">شكراً لك!</div><div class="sub">رأيك يهمنا</div><a class="cta" id="rv" target="_blank" rel="noopener" style="text-decoration:none;display:block;padding:15px">قيّمنا</a><button class="ghost" id="tb" style="color:var(--brown)">إغلاق</button></section>
+  <section class="mid" id="v-game" hidden><div style="font-size:24px;font-weight:700" dir="ltr">XO</div><div class="sub" id="gsc"></div><div class="xo" id="xo" dir="ltr"></div><div class="sub" id="gsc2"></div><button class="cta" id="again" hidden>العب مرة ثانية</button><button class="ghost" id="gb">رجوع</button></section>
   <section class="mid" id="v-ready" hidden>
     <div style="font-size:28px;font-weight:700">طلبك جاهز</div><div class="rcup hot" id="rc" role="img" aria-label="طلبك جاهز">
       <svg class="c-hot" viewBox="0 0 200 200">
@@ -83,6 +86,7 @@
         <circle class="drop" cx="48" cy="150" r="3" fill="#9bc6d6" style="animation-delay:1.6s"/>
       </svg>
     </div><div>تفضل بالاستلام من الكاونتر</div>
+    <button class="ghost" data-arr style="color:inherit;margin-bottom:8px">أنا وصلت</button>
     <button class="cta" style="background:#f1e6d0;color:#934713" id="got">استلمت طلبي</button>
   </section>
 </main>
@@ -101,7 +105,7 @@ import {getFirestore,doc,getDoc,onSnapshot,updateDoc,arrayUnion} from 'https://w
 import {getMessaging,getToken,isSupported} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
 const PUSH_ENABLED=true; // غيّرها إلى true بعد ما تفعّل Blaze وتنشر الدالة
 const $=i=>document.getElementById(i),C=2*Math.PI*100,BAD=/XXXX|YOUR-|0000000000/.test(JSON.stringify(FB.config));
-let gt=null,bd=[],over=false,busy=false,sc={w:0,l:0,d:0},app,db,mine=null,state=null,unsub=null,ac=null,alarm=null,push=false;
+let gt=null,bd=[],over=false,busy=false,sc={w:0,l:0,d:0},app,db,mine=null,state=null,unsub=null,ac=null,alarm=null,push=false,cfg={};
 $('arc').setAttribute('stroke-dasharray',C);
 const fmt=s=>Math.floor(s/60)+':'+('0'+s%60).slice(-2),left=()=>Math.max(0,Math.ceil((state.eta-Date.now())/1000));
 const norm=s=>s.replace(/[٠-٩]/g,d=>d.charCodeAt(0)-1632).replace(/[۰-۹]/g,d=>d.charCodeAt(0)-1776).trim();
@@ -120,7 +124,7 @@ addEventListener('appinstalled',()=>{dip=null;banner()});
 $('a2y').onclick=async()=>{if(dip){dip.prompt();try{await dip.userChoice}catch(e){}dip=null;banner()}else if(isIOS)$('iosm').hidden=false};
 $('a2n').onclick=()=>{LSs('a2n',Date.now());banner()};
 $('iosok').onclick=()=>{$('iosm').hidden=true};
-function show(v){const lg=document.querySelector('.chead .logo');if(lg)lg.src=v==='ready'?'logo-light.png':'logo.png';if(v!=='game'){clearTimeout(gt);busy=false}['in','wait','ready','game'].forEach(x=>$('v-'+x).hidden=x!==v);$('scr').className='scr'+(v==='ready'?' ready':'');banner()}
+function show(v){const lg=document.querySelector('.chead .logo');if(lg)lg.src=v==='ready'?'logo-light.png':'logo.png';if(v!=='game'){clearTimeout(gt);busy=false}['in','wait','ready','game','thanks'].forEach(x=>$('v-'+x).hidden=x!==v);$('scr').className='scr'+(v==='ready'?' ready':'');banner()}
 function unlock(){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}}
 addEventListener('pointerdown',unlock);
 function chime(){if(!ac)return;[880,1175,1568].forEach((f,i)=>{const t=ac.currentTime+i*.22,o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.6);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.65)})}
@@ -132,7 +136,7 @@ setInterval(tick,1000);
 $('bn').textContent='';
 if(BAD){err('إعدادات Firebase ما انضبطت في ملف firebase-config.js')}
 else{app=initializeApp(FB.config);db=getFirestore(app);
-  onSnapshot(doc(db,'settings','main'),s=>{const n=s.exists()?s.data().name:'';$('bn').textContent=n;document.title=n||'تتبع الطلب'},()=>{});
+  onSnapshot(doc(db,'settings','main'),s=>{cfg=s.exists()?s.data():{};document.body.classList.toggle('cb',!!cfg.curbside);const n=cfg.name||'';$('bn').textContent=n;document.title=n||'تتبع الطلب'},()=>{});
   const p=new URLSearchParams(location.search).get('o')||localStorage.getItem('order');if(p)track(p)}
 async function track(n){n=norm(n||$('in').value);if(!n)return;unlock();if(BAD)return;
   err('جاري البحث...');
@@ -140,11 +144,12 @@ async function track(n){n=norm(n||$('in').value);if(!n)return;unlock();if(BAD)re
   catch(e){err(e.code==='permission-denied'?'ما عندك صلاحية، تأكد من نشر قواعد Firestore':'تعذر الاتصال، تأكد من الإنترنت وحاول مرة ثانية');return}
   err('');mine=n;localStorage.setItem('order',n);try{history.replaceState(null,'','?o='+encodeURIComponent(n))}catch(e){}if(!sessionStorage.getItem('sil')){$('silent').hidden=false;sessionStorage.setItem('sil','1')}unsub&&unsub();
   unsub=onSnapshot(doc(db,'orders',n),x=>{state=x.exists()?x.data():null;
-    if(!state||state.status==='picked'){leave();return}
+    if(!state||state.status==='picked'){leave();return}updArr();
     if(state.status==='ready'){startAlarm();setRn(mine);show('ready')}
     else{$('wn').textContent=mine;pushUI();if($('v-game').hidden)show('wait');tick()}});
   if(PUSH_ENABLED&&'Notification' in window&&Notification.permission==='granted')enablePush(n);pushUI()}
-function leave(){try{history.replaceState(null,'',location.pathname)}catch(e){}stopAlarm();unsub&&unsub();mine=null;state=null;localStorage.removeItem('order');$('in').value='';err('');show('in')}
+function leave(thanks){try{history.replaceState(null,'',location.pathname)}catch(e){}stopAlarm();unsub&&unsub();mine=null;state=null;localStorage.removeItem('order');$('in').value='';err('');if(thanks===true&&cfg.reviewUrl){$('rv').href=cfg.reviewUrl;show('thanks')}else show('in')}
+function updArr(){document.querySelectorAll('[data-arr]').forEach(b=>{b.disabled=!!(state&&state.arrived);b.textContent=state&&state.arrived?'تم إبلاغ الموظف ✓':'أنا وصلت'})}
 function pushUI(){const can=PUSH_ENABLED&&'Notification' in window&&'serviceWorker' in navigator,perm=can?Notification.permission:'';
   $('pb').hidden=!(can&&!push&&perm==='default'&&mine);
   $('ps').textContent=push?'التنبيهات مفعّلة، تقدر تقفل الشاشة':perm==='denied'?'التنبيهات مقفولة من إعدادات الجوال، فعّلها عشان توصلك والجوال مقفل':'أبقِ هذي الصفحة مفتوحة ليشتغل الصوت والتنبيه'}
@@ -174,6 +179,6 @@ $('xo').onclick=e=>{const b=e.target.closest('button');if(!b||over||busy)return;
 $('again').onclick=gNew;
 $('play').onclick=()=>{gNew();show('game')};
 $('gb').onclick=()=>show(state&&state.status==='ready'?'ready':'wait');
-$('got').onclick=leave;$('another').onclick=leave;$('cancel').onclick=leave;$('ok').onclick=()=>{$('silent').hidden=true;unlock()};
+$('got').onclick=()=>leave(true);$('tb').onclick=()=>show('in');document.querySelectorAll('[data-arr]').forEach(b=>b.onclick=()=>updateDoc(doc(db,'orders',mine),{arrived:true,arrivedAt:Date.now()}).catch(()=>{}));$('another').onclick=leave;$('cancel').onclick=leave;$('ok').onclick=()=>{$('silent').hidden=true;unlock()};
 show('in');
 </script></body></html>

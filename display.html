@@ -11,7 +11,7 @@ body{height:100dvh;overflow:hidden}
 .qb{background:#fffdf7;border:.9vh solid var(--olive);border-radius:3vh;padding:1.4vh;line-height:0}
 .num{background:var(--brown);color:var(--beige);font-family:'Reem Kufi',serif;font-size:9vh;line-height:1;border-radius:3vh;padding:1.2vh 5vh;min-width:20vh;text-align:center;box-shadow:0 1.2vh 1.2vh rgba(58,42,28,.25)}
 .pills{display:flex;gap:1.4vw}.pills span{background:var(--paper);border:1px solid var(--line);border-radius:40px;padding:.8vh 2.4vh;font-size:2.4vh;font-weight:700;color:var(--olive)}
-</style></head><body>
+#snd{position:fixed;bottom:8px;left:8px;opacity:.45;font-size:12px;padding:6px 10px}</style></head><body>
 <div id="login" class="lg"><div class="lgc"><img class="logo" src="logo.png" alt="" onerror="this.remove()"><div class="brand">شاشة العرض</div><div class="sub">سجّل دخول الأدمن مرة وحدة على الآيباد</div>
 <input id="em" type="email" placeholder="الإيميل" dir="ltr"><input id="pw" type="password" placeholder="كلمة المرور" dir="ltr"><button id="in">دخول</button><div id="le" class="er"></div></div></div>
 <main class="d">
@@ -22,12 +22,13 @@ body{height:100dvh;overflow:hidden}
   </div>
   <div class="pills"><span>بدون تحميل أي تطبيق</span><span>فعّل التنبيهات</span><span>الغي الصامت</span></div>
 </main>
+<button id="snd">تفعيل النداء الصوتي</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="firebase-config.js"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getAuth,signInWithEmailAndPassword,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import {getFirestore,doc,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {getFirestore,doc,onSnapshot,collection,query,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 const $=i=>document.getElementById(i),esc=s=>String(s).replace(/[<>&"']/g,'');
 const base=location.origin+location.pathname.replace(/[^/]*$/,'');
 let order='',shown=null;
@@ -40,5 +41,8 @@ $('in').onclick=login;$('pw').onkeydown=e=>{if(e.key==='Enter')login()};
 qrs();
 let dispUn=null;const watchDisplay=()=>{dispUn&&dispUn();dispUn=onSnapshot(doc(db,'settings','display'),x=>{order=x.exists()?x.data().order:'';qrs()},()=>{})};
 watchDisplay();
-onAuthStateChanged(auth,u=>{$('login').hidden=!!u;if(u)watchDisplay()});
+let seen=null,sub=null,voice=false;
+function say(m){if(!voice||!('speechSynthesis' in window))return;const u=new SpeechSynthesisUtterance(m);u.lang='ar-SA';u.rate=.9;speechSynthesis.speak(u)}
+$('snd').onclick=()=>{voice=true;$('snd').textContent='النداء الصوتي مفعّل';say('تم تفعيل النداء الصوتي')};
+onAuthStateChanged(auth,u=>{$('login').hidden=!!u;if(u){watchDisplay();if(!sub)sub=onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(100)),x=>{const rd=x.docs.map(z=>z.data()).filter(o=>o.status==='ready');const fresh=seen?rd.filter(o=>!seen.has(o.number)):[];seen=new Set(rd.map(o=>o.number));fresh.forEach(o=>say('طلب رقم '+o.number+' جاهز'))},()=>{})}});
 </script></body></html>
